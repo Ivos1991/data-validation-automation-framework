@@ -177,9 +177,7 @@ The workflows:
 
 See [run-validation.yml](C:/Users/Seguras/Downloads/cosas/ivo_personal/data-validation-automation-framework/.github/workflows/run-validation.yml), [pr-validation.yml](C:/Users/Seguras/Downloads/cosas/ivo_personal/data-validation-automation-framework/.github/workflows/pr-validation.yml), [manual-run.yml](C:/Users/Seguras/Downloads/cosas/ivo_personal/data-validation-automation-framework/.github/workflows/manual-run.yml), and [nightly-regression.yml](C:/Users/Seguras/Downloads/cosas/ivo_personal/data-validation-automation-framework/.github/workflows/nightly-regression.yml).
 
-## Why This Is A Strong QA Automation Portfolio Project
-
-This repository demonstrates more than basic API or UI test scripting:
+## This repository demonstrates
 
 - deterministic data-first validation design
 - reusable service/API/request separation
