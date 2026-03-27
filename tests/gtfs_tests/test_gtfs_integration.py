@@ -2,6 +2,7 @@ import allure
 import pandas as pd
 import pytest
 from tests.assertions import assert_that, soft_assertions
+from pathlib import Path
 from uuid import uuid4
 
 from src.domain.trip_search.search_service import search_by_route_and_departure_date
