@@ -1,0 +1,4 @@
+fare_id,price,currency_type
+F100,120.00,USD
+F200,75.50,USD
+F300,140.00,USD

@@ -1,0 +1,7 @@
+{
+  "run_id": "gtfs-multidate-run",
+  "run_label": "GTFS Multi-Date Run",
+  "selected_pack": "multidate",
+  "dataset_profile": "gtfs",
+  "description": "GTFS multi-date service scenarios."
+}

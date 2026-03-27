@@ -1,0 +1,4 @@
+fare_id,route_id
+F100,R100
+F200,R200
+F300,R300

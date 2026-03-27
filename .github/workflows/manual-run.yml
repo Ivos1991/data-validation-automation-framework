@@ -1,0 +1,29 @@
+name: Manual Run
+
+on:
+  workflow_dispatch:
+    inputs:
+      test_target:
+        description: "Pytest path, file, or directory target"
+        required: false
+        default: tests
+        type: string
+      pytest_args:
+        description: "Additional pytest arguments"
+        required: false
+        default: -q -rs -p no:cacheprovider
+        type: string
+
+concurrency:
+  group: manual-run-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    uses: ./.github/workflows/run-validation.yml
+    with:
+      suite_name: Manual Run
+      test_target: ${{ inputs.test_target }}
+      pytest_args: ${{ inputs.pytest_args }}
+      artifact_name: manual-run-artifacts
+      timeout_minutes: 45

@@ -1,0 +1,18 @@
+{
+  "suite_id": "gtfs-trip-search-suite",
+  "suite_label": "GTFS Trip Search Suite",
+  "dataset_profile": "gtfs",
+  "description": "Default GTFS suite for the first supported GTFS slice.",
+  "policy": {
+    "stop_on_first_failed_run": false,
+    "continue_on_failure": true
+  },
+  "run_profiles": [
+    {
+      "profile_path": "gtfs_default_trip_search_run_profile.json"
+    },
+    {
+      "profile_path": "gtfs_multidate_trip_search_run_profile.json"
+    }
+  ]
+}

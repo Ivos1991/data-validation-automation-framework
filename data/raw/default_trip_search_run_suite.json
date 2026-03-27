@@ -1,0 +1,17 @@
+{
+  "suite_id": "core-trip-search-suite",
+  "suite_label": "Core Trip Search Suite",
+  "description": "Default suite of smoke and filter runs.",
+  "policy": {
+    "stop_on_first_failed_run": false,
+    "continue_on_failure": true
+  },
+  "run_profiles": [
+    {
+      "profile_path": "smoke_trip_search_run_profile.json"
+    },
+    {
+      "profile_path": "default_trip_search_run_profile.json"
+    }
+  ]
+}

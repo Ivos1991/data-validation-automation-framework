@@ -1,0 +1,4 @@
+route_id,agency_id,route_short_name
+R100,A1,NYC-BOS
+R200,A2,NYC-BOS
+R300,A1,NYC-WAS

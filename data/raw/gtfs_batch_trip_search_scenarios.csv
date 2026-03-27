@@ -1,0 +1,7 @@
+scenario_id,origin,destination,departure_date,carrier,stops_count,pack,tag,scenario_type
+gtfs-route-date-only,NYC,BOS,2026-04-10,,,smoke,route,baseline
+gtfs-route-date-multidate,NYC,BOS,2026-04-13,,,multidate,route,baseline
+gtfs-carrier-filter,NYC,BOS,2026-04-10,AmRail,,filters,carrier,positive
+gtfs-carrier-filter-multidate,NYC,BOS,2026-04-13,AmRail,,multidate,carrier,positive
+gtfs-combined-filter,NYC,BOS,2026-04-10,BudgetBus,1,filters,combined,positive
+gtfs-no-match,NYC,BOS,2026-04-10,AmRail,1,regression,combined,negative

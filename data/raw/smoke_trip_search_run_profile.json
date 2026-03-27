@@ -1,0 +1,6 @@
+{
+  "run_id": "smoke-run",
+  "run_label": "Smoke Run",
+  "selected_pack": "smoke",
+  "description": "Smoke validation run."
+}

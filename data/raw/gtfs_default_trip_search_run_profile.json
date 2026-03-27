@@ -1,0 +1,7 @@
+{
+  "run_id": "gtfs-default-run",
+  "run_label": "GTFS Default Run",
+  "selected_pack": "filters",
+  "dataset_profile": "gtfs",
+  "description": "Default GTFS profile run."
+}

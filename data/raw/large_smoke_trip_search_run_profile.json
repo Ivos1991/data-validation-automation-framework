@@ -1,0 +1,7 @@
+{
+  "run_id": "large-smoke-run",
+  "run_label": "Large Synthetic Smoke Pack",
+  "selected_pack": "smoke",
+  "dataset_profile": "large",
+  "description": "Smoke scenarios against the larger synthetic dataset."
+}

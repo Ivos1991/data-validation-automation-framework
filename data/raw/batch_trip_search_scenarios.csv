@@ -1,0 +1,5 @@
+scenario_id,origin,destination,departure_date,carrier,stops_count,pack,tag,scenario_type
+route-date-only,NYC,BOS,2026-04-01,,,smoke,route,baseline
+carrier-filter,NYC,BOS,2026-04-01,AmRail,,filters,carrier,positive
+combined-filter,NYC,BOS,2026-04-01,AmRail,0,filters,combined,positive
+no-match,NYC,BOS,2026-04-01,AmRail,1,regression,combined,negative

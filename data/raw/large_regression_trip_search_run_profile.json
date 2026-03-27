@@ -1,0 +1,7 @@
+{
+  "run_id": "large-regression-run",
+  "run_label": "Large Synthetic Regression Pack",
+  "selected_pack": "regression",
+  "dataset_profile": "large",
+  "description": "Combined-filter and no-match regression scenarios against the larger synthetic dataset."
+}

@@ -1,0 +1,6 @@
+trip_id,origin,destination,departure_date,stops_count,route_id,carrier,price_amount,currency,duration_minutes
+TRIP-001,NYC,BOS,2026-04-01,0,NYC-BOS,AmRail,120.00,USD,245
+TRIP-002,NYC,BOS,2026-04-01,1,NYC-BOS,BudgetBus,75.50,USD,310
+TRIP-003,NYC,WAS,2026-04-01,0,NYC-WAS,AmRail,140.00,USD,230
+TRIP-004,BOS,NYC,2026-04-02,0,BOS-NYC,AmRail,115.00,USD,250
+TRIP-005,NYC,BOS,2026-04-02,0,NYC-BOS,AmRail,118.00,USD,245

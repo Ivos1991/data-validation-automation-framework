@@ -1,0 +1,6 @@
+allure-pytest
+assertpy
+numpy
+pandas
+pytest
+python-dotenv

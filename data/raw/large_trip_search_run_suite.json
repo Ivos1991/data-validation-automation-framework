@@ -1,0 +1,23 @@
+{
+  "suite_id": "large-synthetic-trip-search-suite",
+  "suite_label": "Large Synthetic Trip Search Suite",
+  "dataset_profile": "large",
+  "description": "Ordered smoke, filter, and regression runs for the larger synthetic dataset.",
+  "policy": {
+    "stop_on_first_failed_run": false,
+    "continue_on_failure": true,
+    "minimum_passed_scenarios": 9,
+    "minimum_pass_rate": 1.0
+  },
+  "run_profiles": [
+    {
+      "profile_path": "large_smoke_trip_search_run_profile.json"
+    },
+    {
+      "profile_path": "large_filters_trip_search_run_profile.json"
+    },
+    {
+      "profile_path": "large_regression_trip_search_run_profile.json"
+    }
+  ]
+}

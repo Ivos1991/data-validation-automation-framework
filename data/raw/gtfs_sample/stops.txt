@@ -1,0 +1,5 @@
+stop_id,stop_code,stop_name
+S_NYC,NYC,New York
+S_PHL,PHL,Philadelphia
+S_BOS,BOS,Boston
+S_WAS,WAS,Washington

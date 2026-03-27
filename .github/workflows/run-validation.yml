@@ -1,0 +1,63 @@
+name: Run Validation
+
+on:
+  workflow_call:
+    inputs:
+      suite_name:
+        required: true
+        type: string
+      test_target:
+        required: false
+        type: string
+        default: tests
+      pytest_args:
+        required: false
+        type: string
+        default: -q -rs -p no:cacheprovider
+      artifact_name:
+        required: true
+        type: string
+      timeout_minutes:
+        required: false
+        type: number
+        default: 30
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: ${{ inputs.suite_name }}
+    runs-on: ubuntu-latest
+    timeout-minutes: ${{ inputs.timeout_minutes }}
+    env:
+      ALLURE_RESULTS_DIR: artifacts/allure-results
+      TRIP_REPORT_EXPORT_DIR: artifacts/report-export
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: python -m pip install -r requirements.txt
+
+      - name: Run pytest
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pytest --alluredir="${ALLURE_RESULTS_DIR}" ${{ inputs.test_target }} ${{ inputs.pytest_args }}
+
+      - name: Upload validation artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.artifact_name }}
+          if-no-files-found: warn
+          path: |
+            artifacts/

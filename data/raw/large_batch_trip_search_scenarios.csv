@@ -1,0 +1,10 @@
+scenario_id,origin,destination,departure_date,carrier,stops_count,pack,tag,scenario_type
+large-route-date-nyc-bos,NYC,BOS,2026-04-01,,,smoke,route,baseline
+large-route-date-chi-was,CHI,WAS,2026-04-03,,,smoke,route,baseline
+large-carrier-nyc-phl-amrail,NYC,PHL,2026-04-02,AmRail,,filters,carrier,positive
+large-carrier-bos-chi-skyjet,BOS,CHI,2026-04-04,SkyJet,,filters,carrier,positive
+large-stops-was-bos-nonstop,WAS,BOS,2026-04-02,,0,filters,stops,positive
+large-stops-phl-nyc-two-stop,PHL,NYC,2026-04-03,,2,filters,stops,positive
+large-combined-chi-bos-budgetbus-two-stop,CHI,BOS,2026-04-04,BudgetBus,2,regression,combined,positive
+large-combined-nyc-was-amrail-nonstop,NYC,WAS,2026-04-01,AmRail,0,regression,combined,positive
+large-no-match,NYC,BOS,2026-04-01,LocalFerry,1,regression,combined,negative

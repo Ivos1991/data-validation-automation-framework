@@ -1,0 +1,7 @@
+{
+  "run_id": "large-filters-run",
+  "run_label": "Large Synthetic Filters Pack",
+  "selected_pack": "filters",
+  "dataset_profile": "large",
+  "description": "Carrier and stops filter scenarios against the larger synthetic dataset."
+}
