@@ -1,5 +1,5 @@
 import allure
-from assertpy import assert_that, soft_assertions
+from tests.assertions import assert_that, soft_assertions
 
 from src.framework.reporting.allure_helpers import attach_dataframe
 
@@ -11,7 +11,7 @@ class TestTripSearchIntegration:
     """End-to-end reconciliation tests across dataset, SQLite, and service layers."""
 
     @allure.title("Dataset normalization, SQLite seeding, search, and reconciliation succeed end to end")
-    def test_dataset_to_sqlite_to_search_reconciliation(
+    def test_dataset_to_sqlite_to_search_expects_reconciled_results(
         self,
         integration_expected_trip_frame,
         integration_actual_trip_frame,

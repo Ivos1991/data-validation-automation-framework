@@ -1,5 +1,5 @@
 import allure
-from assertpy import assert_that, soft_assertions
+from tests.assertions import assert_that, soft_assertions
 
 from src.framework.reporting.allure_helpers import attach_dataframe
 
@@ -11,7 +11,7 @@ class TestTripAggregateConsistency:
     """Aggregate-level consistency checks for deterministic trip-search results."""
 
     @allure.title("Aggregate consistency matches pandas-derived expected summaries with actual search results")
-    def test_aggregate_consistency_matches_expected_and_actual_result_sets(
+    def test_aggregate_consistency_expects_matching_expected_and_actual_result_sets(
         self,
         expected_aggregate_summary,
         actual_aggregate_summary,

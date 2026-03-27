@@ -1,5 +1,5 @@
 import allure
-from assertpy import assert_that, soft_assertions
+from tests.assertions import assert_that, soft_assertions
 
 from src.framework.reporting.allure_helpers import attach_dataframe, attach_text
 
@@ -11,7 +11,7 @@ class TestTripReconciliation:
     """Row-level reconciliation tests for expected versus actual trips."""
 
     @allure.title("Reconciliation matches pandas-derived expected results with actual search results")
-    def test_reconciliation_matches_expected_and_actual_result_sets(
+    def test_reconciliation_expects_matching_expected_and_actual_result_sets(
         self,
         normalized_expected_trip_frame,
         actual_trip_frame,

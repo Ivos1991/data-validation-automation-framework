@@ -1,5 +1,5 @@
 import allure
-from assertpy import assert_that, soft_assertions
+from tests.assertions import assert_that, soft_assertions
 
 from src.framework.reporting.allure_helpers import attach_dataframe, attach_text
 
@@ -9,7 +9,7 @@ from src.framework.reporting.allure_helpers import attach_dataframe, attach_text
 @allure.sub_suite("Stops Filter")
 class TestTripSearchStopsFilter:
     @allure.title("Stops-filtered search returns only the expected normalized subset")
-    def test_stops_filtered_results_reconcile_and_exclude_non_matching_stop_counts(
+    def test_stops_filter_expects_reconciled_results_and_excludes_non_matching_stop_counts(
         self,
         stops_filtered_expected_trip_frame,
         stops_filtered_actual_trip_frame,
@@ -33,13 +33,13 @@ class TestTripSearchStopsFilter:
         )
 
         with soft_assertions():
-            assert_that(stops_filtered_reconciliation_result.is_match).is_true()
-            assert_that(stops_filtered_reconciliation_result.missing_rows.empty).is_true()
-            assert_that(stops_filtered_reconciliation_result.unexpected_rows.empty).is_true()
-            assert_that(stops_filtered_reconciliation_result.mismatched_fields.empty).is_true()
+            assert_that(stops_filtered_reconciliation_result.is_match, "Expected assertion for stops_filtered_reconciliation_result.is_match to hold").is_true()
+            assert_that(stops_filtered_reconciliation_result.missing_rows.empty, "Expected assertion for stops_filtered_reconciliation_result.missing_rows.empty to hold").is_true()
+            assert_that(stops_filtered_reconciliation_result.unexpected_rows.empty, "Expected assertion for stops_filtered_reconciliation_result.unexpected_rows.empty to hold").is_true()
+            assert_that(stops_filtered_reconciliation_result.mismatched_fields.empty, "Expected assertion for stops_filtered_reconciliation_result.mismatched_fields.empty to hold").is_true()
             assert_that(non_matching_stops_rows.empty, "no rows with different stop counts are returned").is_true()
-            assert_that(len(stops_filtered_actual_trip_frame)).is_equal_to(1)
-            assert_that(stops_filtered_actual_trip_frame.iloc[0]["trip_id"]).is_equal_to("TRIP-001")
-            assert_that(int(stops_filtered_actual_trip_frame.iloc[0]["stops_count"])).is_equal_to(
+            assert_that(len(stops_filtered_actual_trip_frame), "Expected assertion for len(stops_filtered_actual_trip_frame) to hold").is_equal_to(1)
+            assert_that(stops_filtered_actual_trip_frame.iloc[0]["trip_id"], "Expected assertion for stops_filtered_actual_trip_frame.iloc[0]['trip_id'] to hold").is_equal_to("TRIP-001")
+            assert_that(int(stops_filtered_actual_trip_frame.iloc[0]["stops_count"]), "Expected assertion for int(stops_filtered_actual_trip_frame.iloc[0]['stops_count']) to hold").is_equal_to(
                 search_criteria_nyc_to_bos_nonstop["stops_count"]
             )

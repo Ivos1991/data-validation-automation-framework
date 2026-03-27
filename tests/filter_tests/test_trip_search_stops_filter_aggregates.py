@@ -1,5 +1,5 @@
 import allure
-from assertpy import assert_that, soft_assertions
+from tests.assertions import assert_that, soft_assertions
 
 from src.framework.reporting.allure_helpers import attach_dataframe, attach_text
 
@@ -9,7 +9,7 @@ from src.framework.reporting.allure_helpers import attach_dataframe, attach_text
 @allure.sub_suite("Stops Filter Aggregates")
 class TestTripSearchStopsFilterAggregates:
     @allure.title("Stops-filtered search aggregates reconcile with the pandas-derived subset")
-    def test_stops_filtered_aggregate_consistency(
+    def test_stops_filter_expects_matching_aggregate_consistency(
         self,
         stops_filtered_expected_aggregate_summary,
         stops_filtered_actual_aggregate_summary,
@@ -29,7 +29,7 @@ class TestTripSearchStopsFilterAggregates:
         )
 
         with soft_assertions():
-            assert_that(int(stops_filtered_expected_aggregate_summary.iloc[0]["result_count"])).is_equal_to(1)
-            assert_that(stops_filtered_aggregate_comparison_result.is_match).is_true()
-            assert_that(stops_filtered_aggregate_comparison_result.summary_mismatches.empty).is_true()
-            assert_that(stops_filtered_aggregate_comparison_result.carrier_count_mismatches.empty).is_true()
+            assert_that(int(stops_filtered_expected_aggregate_summary.iloc[0]["result_count"]), "Expected assertion for int(stops_filtered_expected_aggregate_summary.iloc[0]['result_count']) to hold").is_equal_to(1)
+            assert_that(stops_filtered_aggregate_comparison_result.is_match, "Expected assertion for stops_filtered_aggregate_comparison_result.is_match to hold").is_true()
+            assert_that(stops_filtered_aggregate_comparison_result.summary_mismatches.empty, "Expected assertion for stops_filtered_aggregate_comparison_result.summary_mismatches.empty to hold").is_true()
+            assert_that(stops_filtered_aggregate_comparison_result.carrier_count_mismatches.empty, "Expected assertion for stops_filtered_aggregate_comparison_result.carrier_count_mismatches.empty to hold").is_true()

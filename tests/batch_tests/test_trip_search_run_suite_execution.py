@@ -3,7 +3,7 @@ from uuid import uuid4
 
 import allure
 import json
-from assertpy import assert_that, soft_assertions
+from tests.assertions import assert_that, soft_assertions
 
 from src.domain.trip_search.search_models import TripSearchRunSuitePolicy
 from src.framework.connectors.files.run_suite_loader import TripSearchRunSuiteLoader
@@ -51,7 +51,7 @@ class TestTripSearchRunSuiteExecution:
     """Suite-execution tests for run sequencing, policy handling, and rollups."""
 
     @allure.title("Run suite executes multiple run profiles in sequence")
-    def test_run_suite_executes_multiple_profiles(
+    def test_run_suite_expects_multiple_profiles_to_execute(
         self,
         default_run_suite,
         batch_scenarios,
@@ -63,19 +63,19 @@ class TestTripSearchRunSuiteExecution:
         build_suite_reporting_bundle(suite_result).attach_to_allure("suite")
 
         with soft_assertions():
-            assert_that(suite_result.run_results).is_length(2)
-            assert_that(suite_result.suite_run_summary_frame["run_id"].tolist()).is_equal_to(
+            assert_that(suite_result.run_results, "Expected assertion for suite_result.run_results to hold").is_length(2)
+            assert_that(suite_result.suite_run_summary_frame["run_id"].tolist(), "Expected assertion for suite_result.suite_run_summary_frame['run_id'].tolist() to hold").is_equal_to(
                 ["smoke-run", "filters-pack-run"]
             )
-            assert_that(int(suite_result.suite_summary_frame.loc[0, "total_runs"])).is_equal_to(2)
-            assert_that(int(suite_result.suite_summary_frame.loc[0, "total_scenarios_executed"])).is_equal_to(3)
-            assert_that(int(suite_result.suite_summary_frame.loc[0, "total_passed_scenarios"])).is_equal_to(3)
-            assert_that(int(suite_result.suite_summary_frame.loc[0, "total_failed_scenarios"])).is_equal_to(0)
-            assert_that(suite_result.suite_summary_frame.loc[0, "suite_status"]).is_equal_to("passed")
-            assert_that(bool(suite_result.suite_summary_frame.loc[0, "stopped_early"])).is_false()
+            assert_that(int(suite_result.suite_summary_frame.loc[0, "total_runs"]), "Expected assertion for int(suite_result.suite_summary_frame.loc[0, 'total_runs']) to hold").is_equal_to(2)
+            assert_that(int(suite_result.suite_summary_frame.loc[0, "total_scenarios_executed"]), "Expected assertion for int(suite_result.suite_summary_frame.loc[0, 'total_scenarios_executed']) to hold").is_equal_to(3)
+            assert_that(int(suite_result.suite_summary_frame.loc[0, "total_passed_scenarios"]), "Expected assertion for int(suite_result.suite_summary_frame.loc[0, 'total_passed_scenarios']) to hold").is_equal_to(3)
+            assert_that(int(suite_result.suite_summary_frame.loc[0, "total_failed_scenarios"]), "Expected assertion for int(suite_result.suite_summary_frame.loc[0, 'total_failed_scenarios']) to hold").is_equal_to(0)
+            assert_that(suite_result.suite_summary_frame.loc[0, "suite_status"], "Expected assertion for suite_result.suite_summary_frame.loc[0, 'suite_status'] to hold").is_equal_to("passed")
+            assert_that(bool(suite_result.suite_summary_frame.loc[0, "stopped_early"]), "Expected assertion for bool(suite_result.suite_summary_frame.loc[0, 'stopped_early']) to hold").is_false()
 
     @allure.title("Run suite summary rolls up mixed results across runs")
-    def test_run_suite_summary_reports_mixed_results(
+    def test_run_suite_expects_mixed_results_to_be_reported_in_summary(
         self,
         config,
         default_run_suite,
@@ -95,15 +95,15 @@ class TestTripSearchRunSuiteExecution:
 
         issue_rollup = suite_result.issue_category_rollup_frame.set_index("issue_category")
         with soft_assertions():
-            assert_that(int(suite_result.suite_summary_frame.loc[0, "total_runs"])).is_equal_to(2)
-            assert_that(int(suite_result.suite_summary_frame.loc[0, "total_passed_scenarios"])).is_equal_to(2)
-            assert_that(int(suite_result.suite_summary_frame.loc[0, "total_failed_scenarios"])).is_equal_to(1)
-            assert_that(suite_result.suite_summary_frame.loc[0, "suite_status"]).is_equal_to("partial")
-            assert_that(int(issue_rollup.loc["row_reconciliation", "issue_count"])).is_equal_to(1)
-            assert_that(int(issue_rollup.loc["aggregate_mismatch", "issue_count"])).is_equal_to(1)
+            assert_that(int(suite_result.suite_summary_frame.loc[0, "total_runs"]), "Expected assertion for int(suite_result.suite_summary_frame.loc[0, 'total_runs']) to hold").is_equal_to(2)
+            assert_that(int(suite_result.suite_summary_frame.loc[0, "total_passed_scenarios"]), "Expected assertion for int(suite_result.suite_summary_frame.loc[0, 'total_passed_scenarios']) to hold").is_equal_to(2)
+            assert_that(int(suite_result.suite_summary_frame.loc[0, "total_failed_scenarios"]), "Expected assertion for int(suite_result.suite_summary_frame.loc[0, 'total_failed_scenarios']) to hold").is_equal_to(1)
+            assert_that(suite_result.suite_summary_frame.loc[0, "suite_status"], "Expected assertion for suite_result.suite_summary_frame.loc[0, 'suite_status'] to hold").is_equal_to("partial")
+            assert_that(int(issue_rollup.loc["row_reconciliation", "issue_count"]), "Expected assertion for int(issue_rollup.loc['row_reconciliation', 'issue_count']) to hold").is_equal_to(1)
+            assert_that(int(issue_rollup.loc["aggregate_mismatch", "issue_count"]), "Expected assertion for int(issue_rollup.loc['aggregate_mismatch', 'issue_count']) to hold").is_equal_to(1)
 
     @allure.title("Run suite loader and executor support suite files built in tests")
-    def test_run_suite_executes_test_defined_suite(
+    def test_run_suite_expects_test_defined_suite_to_execute(
         self,
         local_batch_test_dir: Path,
         config,
@@ -138,27 +138,21 @@ class TestTripSearchRunSuiteExecution:
             encoding="utf-8",
         )
 
-        try:
-            run_suite = TripSearchRunSuiteLoader().load_json(suite_path)
-            suite_result = TripSearchRunSuiteExecutor(
-                service_api=batch_trip_search_service_api,
-                numeric_tolerance=config.numeric_tolerance,
-                run_profile_loader=run_profile_loader,
-            ).execute(run_suite, batch_scenarios, expected_trip_frame)
-            build_suite_reporting_bundle(suite_result).attach_to_allure("test-defined-suite")
+        run_suite = TripSearchRunSuiteLoader().load_json(suite_path)
+        suite_result = TripSearchRunSuiteExecutor(
+            service_api=batch_trip_search_service_api,
+            numeric_tolerance=config.numeric_tolerance,
+            run_profile_loader=run_profile_loader,
+        ).execute(run_suite, batch_scenarios, expected_trip_frame)
+        build_suite_reporting_bundle(suite_result).attach_to_allure("test-defined-suite")
 
-            with soft_assertions():
-                assert_that(int(suite_result.suite_summary_frame.loc[0, "total_runs"])).is_equal_to(1)
-                assert_that(suite_result.suite_run_summary_frame["run_id"].tolist()).is_equal_to(["negative-run"])
-                assert_that(int(suite_result.suite_run_summary_frame.loc[0, "total_scenarios"])).is_equal_to(1)
-        finally:
-            if ad_hoc_profile_path.exists():
-                ad_hoc_profile_path.unlink()
-            if suite_path.exists():
-                suite_path.unlink()
+        with soft_assertions():
+            assert_that(int(suite_result.suite_summary_frame.loc[0, "total_runs"]), "Expected assertion for int(suite_result.suite_summary_frame.loc[0, 'total_runs']) to hold").is_equal_to(1)
+            assert_that(suite_result.suite_run_summary_frame["run_id"].tolist(), "Expected assertion for suite_result.suite_run_summary_frame['run_id'].tolist() to hold").is_equal_to(["negative-run"])
+            assert_that(int(suite_result.suite_run_summary_frame.loc[0, "total_scenarios"]), "Expected assertion for int(suite_result.suite_run_summary_frame.loc[0, 'total_scenarios']) to hold").is_equal_to(1)
 
     @allure.title("Run suite supports stop-on-first-failed-run policies")
-    def test_run_suite_stops_early_on_first_failed_run(
+    def test_run_suite_expects_stop_on_first_failed_run_to_stop_early(
         self,
         local_batch_test_dir: Path,
         config,
@@ -187,26 +181,22 @@ class TestTripSearchRunSuiteExecution:
             encoding="utf-8",
         )
 
-        try:
-            run_suite = TripSearchRunSuiteLoader().load_json(suite_path)
-            executor = TripSearchRunSuiteExecutor(
-                service_api=FaultInjectingSuiteSearchServiceAPI(batch_trip_search_service_api),
-                numeric_tolerance=config.numeric_tolerance,
-                run_profile_loader=run_profile_loader,
-            )
-            suite_result = executor.execute(run_suite, batch_scenarios, expected_trip_frame)
-            build_suite_reporting_bundle(suite_result).attach_to_allure("stop-early-suite")
+        run_suite = TripSearchRunSuiteLoader().load_json(suite_path)
+        executor = TripSearchRunSuiteExecutor(
+            service_api=FaultInjectingSuiteSearchServiceAPI(batch_trip_search_service_api),
+            numeric_tolerance=config.numeric_tolerance,
+            run_profile_loader=run_profile_loader,
+        )
+        suite_result = executor.execute(run_suite, batch_scenarios, expected_trip_frame)
+        build_suite_reporting_bundle(suite_result).attach_to_allure("stop-early-suite")
 
-            with soft_assertions():
-                assert_that(int(suite_result.suite_summary_frame.loc[0, "total_runs"])).is_equal_to(1)
-                assert_that(bool(suite_result.suite_summary_frame.loc[0, "stopped_early"])).is_true()
-                assert_that(suite_result.suite_summary_frame.loc[0, "suite_status"]).is_equal_to("partial")
-        finally:
-            if suite_path.exists():
-                suite_path.unlink()
+        with soft_assertions():
+            assert_that(int(suite_result.suite_summary_frame.loc[0, "total_runs"]), "Expected assertion for int(suite_result.suite_summary_frame.loc[0, 'total_runs']) to hold").is_equal_to(1)
+            assert_that(bool(suite_result.suite_summary_frame.loc[0, "stopped_early"]), "Expected assertion for bool(suite_result.suite_summary_frame.loc[0, 'stopped_early']) to hold").is_true()
+            assert_that(suite_result.suite_summary_frame.loc[0, "suite_status"], "Expected assertion for suite_result.suite_summary_frame.loc[0, 'suite_status'] to hold").is_equal_to("partial")
 
     @allure.title("Run suite enforces minimum pass thresholds")
-    def test_run_suite_enforces_minimum_pass_thresholds(
+    def test_run_suite_expects_minimum_pass_thresholds_to_be_enforced(
         self,
         local_batch_test_dir: Path,
         config,
@@ -234,25 +224,21 @@ class TestTripSearchRunSuiteExecution:
             encoding="utf-8",
         )
 
-        try:
-            run_suite = TripSearchRunSuiteLoader().load_json(suite_path)
-            executor = TripSearchRunSuiteExecutor(
-                service_api=FaultInjectingSuiteSearchServiceAPI(batch_trip_search_service_api),
-                numeric_tolerance=config.numeric_tolerance,
-                run_profile_loader=run_profile_loader,
-            )
-            suite_result = executor.execute(run_suite, batch_scenarios, expected_trip_frame)
-            build_suite_reporting_bundle(suite_result).attach_to_allure("threshold-suite")
+        run_suite = TripSearchRunSuiteLoader().load_json(suite_path)
+        executor = TripSearchRunSuiteExecutor(
+            service_api=FaultInjectingSuiteSearchServiceAPI(batch_trip_search_service_api),
+            numeric_tolerance=config.numeric_tolerance,
+            run_profile_loader=run_profile_loader,
+        )
+        suite_result = executor.execute(run_suite, batch_scenarios, expected_trip_frame)
+        build_suite_reporting_bundle(suite_result).attach_to_allure("threshold-suite")
 
-            with soft_assertions():
-                assert_that(suite_result.suite_summary_frame.loc[0, "suite_status"]).is_equal_to("failed")
-                assert_that(bool(suite_result.suite_summary_frame.loc[0, "minimum_pass_rate_met"])).is_false()
-        finally:
-            if suite_path.exists():
-                suite_path.unlink()
+        with soft_assertions():
+            assert_that(suite_result.suite_summary_frame.loc[0, "suite_status"], "Expected assertion for suite_result.suite_summary_frame.loc[0, 'suite_status'] to hold").is_equal_to("failed")
+            assert_that(bool(suite_result.suite_summary_frame.loc[0, "minimum_pass_rate_met"]), "Expected assertion for bool(suite_result.suite_summary_frame.loc[0, 'minimum_pass_rate_met']) to hold").is_false()
 
     @allure.title("Run suite can report blocked status from preflight-blocked runs")
-    def test_run_suite_reports_blocked_status(
+    def test_run_suite_expects_blocked_status_to_be_reported(
         self,
         config,
         default_run_suite,
@@ -273,8 +259,8 @@ class TestTripSearchRunSuiteExecution:
         build_suite_reporting_bundle(suite_result).attach_to_allure("blocked-suite")
 
         with soft_assertions():
-            assert_that(suite_result.suite_summary_frame.loc[0, "suite_status"]).is_equal_to("blocked")
-            assert_that(int(suite_result.suite_summary_frame.loc[0, "total_preflight_failed_runs"])).is_equal_to(2)
+            assert_that(suite_result.suite_summary_frame.loc[0, "suite_status"], "Expected assertion for suite_result.suite_summary_frame.loc[0, 'suite_status'] to hold").is_equal_to("blocked")
+            assert_that(int(suite_result.suite_summary_frame.loc[0, "total_preflight_failed_runs"]), "Expected assertion for int(suite_result.suite_summary_frame.loc[0, 'total_preflight_failed_runs']) to hold").is_equal_to(2)
 
 
 def attachable_frame(rows: list[dict[str, object]]):
@@ -304,7 +290,7 @@ class TestTripSearchSuiteReportingBundle:
     """Suite reporting bundle tests for Allure/export packaging inputs."""
 
     @allure.title("Suite reporting bundle exposes policy and status summaries for Allure packaging")
-    def test_suite_reporting_bundle_exposes_policy_and_status_summaries(
+    def test_suite_reporting_bundle_expects_policy_and_status_summaries(
         self,
         default_run_suite,
         batch_scenarios,
@@ -316,9 +302,9 @@ class TestTripSearchSuiteReportingBundle:
         reporting_bundle = build_suite_reporting_bundle(suite_result)
 
         with soft_assertions():
-            assert_that(reporting_bundle.policy_summary["stop_on_first_failed_run"]).is_false()
-            assert_that(reporting_bundle.policy_summary["continue_on_failure"]).is_true()
-            assert_that(reporting_bundle.status_summary["dataset_profile"]).is_equal_to("small")
-            assert_that(reporting_bundle.status_summary["scenario_dataset_asset"]).is_equal_to("batch_trip_search_scenarios.csv")
-            assert_that(reporting_bundle.status_summary["suite_status"]).is_equal_to("passed")
-            assert_that(reporting_bundle.status_summary["stopped_early"]).is_false()
+            assert_that(reporting_bundle.policy_summary["stop_on_first_failed_run"], "Expected assertion for reporting_bundle.policy_summary['stop_on_first_failed_run'] to hold").is_false()
+            assert_that(reporting_bundle.policy_summary["continue_on_failure"], "Expected assertion for reporting_bundle.policy_summary['continue_on_failure'] to hold").is_true()
+            assert_that(reporting_bundle.status_summary["dataset_profile"], "Expected assertion for reporting_bundle.status_summary['dataset_profile'] to hold").is_equal_to("small")
+            assert_that(reporting_bundle.status_summary["scenario_dataset_asset"], "Expected assertion for reporting_bundle.status_summary['scenario_dataset_asset'] to hold").is_equal_to("batch_trip_search_scenarios.csv")
+            assert_that(reporting_bundle.status_summary["suite_status"], "Expected assertion for reporting_bundle.status_summary['suite_status'] to hold").is_equal_to("passed")
+            assert_that(reporting_bundle.status_summary["stopped_early"], "Expected assertion for reporting_bundle.status_summary['stopped_early'] to hold").is_false()

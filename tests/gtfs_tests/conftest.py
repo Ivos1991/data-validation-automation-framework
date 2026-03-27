@@ -98,3 +98,12 @@ def gtfs_seeded_trip_db(gtfs_sqlite_client: SQLiteClient, gtfs_loaded_trip_datas
 @pytest.fixture()
 def gtfs_trip_search_service_api(gtfs_seeded_trip_db) -> SearchServiceAPI:
     return SearchServiceAPI(TripQueries(gtfs_seeded_trip_db))
+
+
+@pytest.fixture()
+def gtfs_suite_search_service_api(
+    gtfs_sqlite_client: SQLiteClient,
+    gtfs_loaded_trip_dataset: LoadedTripDatasetContext,
+) -> SearchServiceAPI:
+    TripQueries(gtfs_sqlite_client).seed_trips(gtfs_loaded_trip_dataset.normalized_trips)
+    return SearchServiceAPI(TripQueries(gtfs_sqlite_client))

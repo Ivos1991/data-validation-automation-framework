@@ -1,6 +1,6 @@
 import allure
 import pandas as pd
-from assertpy import assert_that, soft_assertions
+from tests.assertions import assert_that, soft_assertions
 
 from src.domain.trip_search.search_service import search_by_route_and_departure_date
 from src.domain.trip_search.search_service_request import SearchServiceRequest
@@ -20,7 +20,7 @@ def _scenario_by_id(scenarios, scenario_id: str):
 @allure.sub_suite("Synthetic Dataset")
 class TestLargeSyntheticDataset:
     @allure.title("Deterministic larger synthetic dataset builds a stable high-variation trip set")
-    def test_large_synthetic_dataset_builder_creates_expected_profile(
+    def test_large_synthetic_dataset_builder_expects_expected_profile_counts(
         self,
         large_raw_trip_frame: pd.DataFrame,
         large_dataset_profile_frame: pd.DataFrame,
@@ -28,16 +28,16 @@ class TestLargeSyntheticDataset:
         attach_dataframe("large-dataset-profile", large_dataset_profile_frame)
 
         with soft_assertions():
-            assert_that(len(large_raw_trip_frame)).is_equal_to(720)
-            assert_that(int(large_dataset_profile_frame.loc[0, "row_count"])).is_equal_to(720)
-            assert_that(int(large_dataset_profile_frame.loc[0, "unique_origins"])).is_equal_to(5)
-            assert_that(int(large_dataset_profile_frame.loc[0, "unique_departure_dates"])).is_equal_to(4)
-            assert_that(sorted(large_raw_trip_frame["carrier"].unique().tolist())).is_equal_to(["AmRail", "BudgetBus", "SkyJet"])
-            assert_that(sorted(large_raw_trip_frame["stops_count"].unique().tolist())).is_equal_to([0, 1, 2])
-            assert_that(large_raw_trip_frame["trip_id"].is_unique).is_true()
+            assert_that(len(large_raw_trip_frame), "Expected assertion for len(large_raw_trip_frame) to hold").is_equal_to(720)
+            assert_that(int(large_dataset_profile_frame.loc[0, "row_count"]), "Expected assertion for int(large_dataset_profile_frame.loc[0, 'row_count']) to hold").is_equal_to(720)
+            assert_that(int(large_dataset_profile_frame.loc[0, "unique_origins"]), "Expected assertion for int(large_dataset_profile_frame.loc[0, 'unique_origins']) to hold").is_equal_to(5)
+            assert_that(int(large_dataset_profile_frame.loc[0, "unique_departure_dates"]), "Expected assertion for int(large_dataset_profile_frame.loc[0, 'unique_departure_dates']) to hold").is_equal_to(4)
+            assert_that(sorted(large_raw_trip_frame["carrier"].unique().tolist()), "Expected assertion for sorted(large_raw_trip_frame['carrier'].unique().tolist()) to hold").is_equal_to(["AmRail", "BudgetBus", "SkyJet"])
+            assert_that(sorted(large_raw_trip_frame["stops_count"].unique().tolist()), "Expected assertion for sorted(large_raw_trip_frame['stops_count'].unique().tolist()) to hold").is_equal_to([0, 1, 2])
+            assert_that(large_raw_trip_frame["trip_id"].is_unique, "Expected assertion for large_raw_trip_frame['trip_id'].is_unique to hold").is_true()
 
     @allure.title("Row-level reconciliation stays correct on a selected larger-data combined-filter scenario")
-    def test_large_synthetic_dataset_row_level_reconciliation(
+    def test_large_synthetic_dataset_expects_row_level_reconciliation_to_match(
         self,
         large_batch_scenarios,
         large_expected_trip_frame: pd.DataFrame,
@@ -58,14 +58,14 @@ class TestLargeSyntheticDataset:
         attach_dataframe("large-row-level-actual-trips", actual_trip_frame)
 
         with soft_assertions():
-            assert_that(reconciliation_result.is_match).is_true()
-            assert_that(len(expected_subset)).is_equal_to(1)
-            assert_that(len(actual_trip_frame)).is_equal_to(1)
-            assert_that(actual_trip_frame.loc[0, "carrier"]).is_equal_to("AmRail")
-            assert_that(int(actual_trip_frame.loc[0, "stops_count"])).is_equal_to(0)
+            assert_that(reconciliation_result.is_match, "Expected assertion for reconciliation_result.is_match to hold").is_true()
+            assert_that(len(expected_subset), "Expected assertion for len(expected_subset) to hold").is_equal_to(1)
+            assert_that(len(actual_trip_frame), "Expected assertion for len(actual_trip_frame) to hold").is_equal_to(1)
+            assert_that(actual_trip_frame.loc[0, "carrier"], "Expected assertion for actual_trip_frame.loc[0, 'carrier'] to hold").is_equal_to("AmRail")
+            assert_that(int(actual_trip_frame.loc[0, "stops_count"]), "Expected assertion for int(actual_trip_frame.loc[0, 'stops_count']) to hold").is_equal_to(0)
 
     @allure.title("Aggregate validation stays consistent on a selected larger-data route-date scenario")
-    def test_large_synthetic_dataset_aggregate_consistency(
+    def test_large_synthetic_dataset_expects_aggregate_consistency_to_match(
         self,
         config,
         large_batch_scenarios,
@@ -90,12 +90,12 @@ class TestLargeSyntheticDataset:
         attach_dataframe("large-aggregate-actual-trips", actual_trip_frame)
 
         with soft_assertions():
-            assert_that(len(expected_subset)).is_equal_to(9)
-            assert_that(aggregate_result.is_match).is_true()
-            assert_that(sorted(actual_trip_frame["carrier"].unique().tolist())).is_equal_to(["AmRail", "BudgetBus", "SkyJet"])
+            assert_that(len(expected_subset), "Expected assertion for len(expected_subset) to hold").is_equal_to(9)
+            assert_that(aggregate_result.is_match, "Expected assertion for aggregate_result.is_match to hold").is_true()
+            assert_that(sorted(actual_trip_frame["carrier"].unique().tolist()), "Expected assertion for sorted(actual_trip_frame['carrier'].unique().tolist()) to hold").is_equal_to(["AmRail", "BudgetBus", "SkyJet"])
 
     @allure.title("Batch validation executes a broader larger-data scenario pack successfully")
-    def test_large_synthetic_dataset_batch_execution(
+    def test_large_synthetic_dataset_expects_batch_execution_to_pass(
         self,
         large_batch_scenario_dataset,
         large_batch_scenarios,
@@ -111,17 +111,17 @@ class TestLargeSyntheticDataset:
         build_batch_reporting_bundle(batch_result).attach_to_allure("large-batch")
 
         with soft_assertions():
-            assert_that(len(batch_result.scenario_results)).is_equal_to(9)
-            assert_that(batch_result.summary_frame["is_pass"].tolist()).contains_only(*([True] * 9))
-            assert_that(batch_result.run_summary_frame.loc[0, "dataset_profile"]).is_equal_to("large")
-            assert_that(batch_result.run_summary_frame.loc[0, "scenario_dataset_asset"]).is_equal_to("large_batch_trip_search_scenarios.csv")
-            assert_that(int(batch_result.run_summary_frame.loc[0, "total_scenarios"])).is_equal_to(9)
-            assert_that(int(batch_result.run_summary_frame.loc[0, "passed_scenarios"])).is_equal_to(9)
-            assert_that(int(batch_result.issue_category_frame.set_index("issue_category").loc["row_reconciliation", "issue_count"])).is_equal_to(0)
-            assert_that(batch_result.pack_summary_frame["pack"].tolist()).is_equal_to(["filters", "regression", "smoke"])
+            assert_that(len(batch_result.scenario_results), "Expected assertion for len(batch_result.scenario_results) to hold").is_equal_to(9)
+            assert_that(batch_result.summary_frame["is_pass"].tolist(), "Expected assertion for batch_result.summary_frame['is_pass'].tolist() to hold").contains_only(*([True] * 9))
+            assert_that(batch_result.run_summary_frame.loc[0, "dataset_profile"], "Expected assertion for batch_result.run_summary_frame.loc[0, 'dataset_profile'] to hold").is_equal_to("large")
+            assert_that(batch_result.run_summary_frame.loc[0, "scenario_dataset_asset"], "Expected assertion for batch_result.run_summary_frame.loc[0, 'scenario_dataset_asset'] to hold").is_equal_to("large_batch_trip_search_scenarios.csv")
+            assert_that(int(batch_result.run_summary_frame.loc[0, "total_scenarios"]), "Expected assertion for int(batch_result.run_summary_frame.loc[0, 'total_scenarios']) to hold").is_equal_to(9)
+            assert_that(int(batch_result.run_summary_frame.loc[0, "passed_scenarios"]), "Expected assertion for int(batch_result.run_summary_frame.loc[0, 'passed_scenarios']) to hold").is_equal_to(9)
+            assert_that(int(batch_result.issue_category_frame.set_index("issue_category").loc["row_reconciliation", "issue_count"]), "Expected assertion for int(batch_result.issue_category_frame.set_index('issue_category').loc['row_reconciliati... to hold").is_equal_to(0)
+            assert_that(batch_result.pack_summary_frame["pack"].tolist(), "Expected assertion for batch_result.pack_summary_frame['pack'].tolist() to hold").is_equal_to(["filters", "regression", "smoke"])
 
     @allure.title("Suite execution stays stable on a realistic larger-data run pack")
-    def test_large_synthetic_dataset_suite_execution(
+    def test_large_synthetic_dataset_expects_suite_execution_to_pass(
         self,
         large_run_suite,
         large_batch_scenarios,
@@ -142,17 +142,17 @@ class TestLargeSyntheticDataset:
         suite_summary = suite_result.suite_summary_frame.iloc[0]
 
         with soft_assertions():
-            assert_that(suite_summary["suite_status"]).is_equal_to("passed")
-            assert_that(suite_summary["dataset_profile"]).is_equal_to("large")
-            assert_that(suite_summary["scenario_dataset_asset"]).is_equal_to("large_batch_trip_search_scenarios.csv")
-            assert_that(int(suite_summary["total_runs"])).is_equal_to(3)
-            assert_that(int(suite_summary["total_scenarios_executed"])).is_equal_to(9)
-            assert_that(int(suite_summary["total_passed_scenarios"])).is_equal_to(9)
-            assert_that(int(suite_summary["total_failed_scenarios"])).is_equal_to(0)
-            assert_that(suite_result.suite_run_summary_frame["run_id"].tolist()).is_equal_to(
+            assert_that(suite_summary["suite_status"], "Expected assertion for suite_summary['suite_status'] to hold").is_equal_to("passed")
+            assert_that(suite_summary["dataset_profile"], "Expected assertion for suite_summary['dataset_profile'] to hold").is_equal_to("large")
+            assert_that(suite_summary["scenario_dataset_asset"], "Expected assertion for suite_summary['scenario_dataset_asset'] to hold").is_equal_to("large_batch_trip_search_scenarios.csv")
+            assert_that(int(suite_summary["total_runs"]), "Expected assertion for int(suite_summary['total_runs']) to hold").is_equal_to(3)
+            assert_that(int(suite_summary["total_scenarios_executed"]), "Expected assertion for int(suite_summary['total_scenarios_executed']) to hold").is_equal_to(9)
+            assert_that(int(suite_summary["total_passed_scenarios"]), "Expected assertion for int(suite_summary['total_passed_scenarios']) to hold").is_equal_to(9)
+            assert_that(int(suite_summary["total_failed_scenarios"]), "Expected assertion for int(suite_summary['total_failed_scenarios']) to hold").is_equal_to(0)
+            assert_that(suite_result.suite_run_summary_frame["run_id"].tolist(), "Expected assertion for suite_result.suite_run_summary_frame['run_id'].tolist() to hold").is_equal_to(
                 ["large-smoke-run", "large-filters-run", "large-regression-run"]
             )
-            assert_that(suite_result.suite_run_summary_frame["dataset_profile"].tolist()).is_equal_to(["large", "large", "large"])
-            assert_that(suite_result.suite_run_summary_frame["scenario_dataset_asset"].tolist()).is_equal_to(
+            assert_that(suite_result.suite_run_summary_frame["dataset_profile"].tolist(), "Expected assertion for suite_result.suite_run_summary_frame['dataset_profile'].tolist() to hold").is_equal_to(["large", "large", "large"])
+            assert_that(suite_result.suite_run_summary_frame["scenario_dataset_asset"].tolist(), "Expected assertion for suite_result.suite_run_summary_frame['scenario_dataset_asset'].tolist() to hold").is_equal_to(
                 ["large_batch_trip_search_scenarios.csv", "large_batch_trip_search_scenarios.csv", "large_batch_trip_search_scenarios.csv"]
             )

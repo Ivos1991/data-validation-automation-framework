@@ -2,59 +2,51 @@
 
 Data-driven QA automation framework for validating trip-search results against normalized source datasets. The project demonstrates a senior-level validation platform that starts with deterministic CSV data, scales to larger synthetic packs, and extends into a narrow GTFS-derived input path without changing the canonical validation architecture.
 
-## What This Project Covers
+## Overview
 
-- Canonical trip validation through a normalized `Trip` model
-- SQLite-backed execution path that mirrors service-style API modules
-- Row-level reconciliation and aggregate validation
-- External scenario datasets, run profiles, and multi-run suites
-- Profile-aware execution for `small`, `large`, and `gtfs` datasets
-- Allure reporting plus structured export bundles for CI and offline review
-- CLI-driven execution for local runs and pipeline use
+This repository validates trip-search behavior through one consistent platform model:
 
-## Architecture Overview
-
-The platform keeps one validation shape across all dataset profiles:
-
-1. Source data is loaded from a managed CSV, deterministic synthetic builder, or supported GTFS subset.
-2. Source records are normalized into the canonical trip model.
-3. Canonical trips are seeded into SQLite.
-4. The service flow executes through:
+1. Load source data from a managed CSV, deterministic synthetic dataset, or supported GTFS subset.
+2. Normalize the source into the canonical `Trip` model.
+3. Seed canonical trips into SQLite.
+4. Execute the search flow through:
    `search_service_request -> search_service_api -> search_service`
-5. Expected results are derived from normalized pandas frames.
-6. Validation compares expected versus actual through:
-   - row-level reconciliation
-   - aggregate validation
-   - optional filter-correctness checks
-7. Batch, run-profile, and suite layers package those results for Allure and export.
+5. Derive expected results from normalized pandas data.
+6. Compare expected versus actual results through row-level reconciliation, aggregate validation, and filter checks.
+7. Package outcomes for Allure, exported report bundles, batch runs, run profiles, and suites.
 
-Key implementation areas:
+## Repository Structure
 
-- [src/domain/trip_search](C:/Users/Seguras/Downloads/cosas/ivo_personal/data-validation-automation-framework/src/domain/trip_search)
-- [src/framework/connectors](C:/Users/Seguras/Downloads/cosas/ivo_personal/data-validation-automation-framework/src/framework/connectors)
-- [src/framework/reporting](C:/Users/Seguras/Downloads/cosas/ivo_personal/data-validation-automation-framework/src/framework/reporting)
-- [src/validators](C:/Users/Seguras/Downloads/cosas/ivo_personal/data-validation-automation-framework/src/validators)
+- `src/domain/trip_search/`: canonical trip models, dataset profiles, selectors, and API-style service flow
+- `src/framework/connectors/`: SQLite, CSV, GTFS, scenario, run-profile, and suite loaders
+- `src/framework/execution/`: profile-aware CLI entrypoint
+- `src/framework/reporting/`: Allure and export bundle packaging
+- `src/transformers/`: raw-to-canonical mapping and GTFS transformation
+- `src/validators/`: reconciliation, aggregate, quality, batch, and suite validators
+- `tests/`: deterministic validation coverage across service, integration, filters, batch, suite, entrypoint, large dataset, and GTFS flows
+- `data/raw/`: sample datasets, scenario CSVs, run profiles, suites, and GTFS sample input
+- `docs/`: implementation and architecture notes
 
 ## Dataset Profiles
 
-The framework supports three dataset profiles through one centralized asset-resolution mechanism.
+The framework supports three dataset profiles through one centralized asset-resolution layer.
 
 ### `small`
 
-- Trip source: [sample_trips.csv](C:/Users/Seguras/Downloads/cosas/ivo_personal/data-validation-automation-framework/data/raw/sample_trips.csv)
-- Scenario dataset: [batch_trip_search_scenarios.csv](C:/Users/Seguras/Downloads/cosas/ivo_personal/data-validation-automation-framework/data/raw/batch_trip_search_scenarios.csv)
+- Trip source: `data/raw/sample_trips.csv`
+- Scenario dataset: `data/raw/batch_trip_search_scenarios.csv`
 - Purpose: fast local smoke and baseline validation
 
 ### `large`
 
 - Trip source: deterministic synthetic dataset builder
-- Scenario dataset: [large_batch_trip_search_scenarios.csv](C:/Users/Seguras/Downloads/cosas/ivo_personal/data-validation-automation-framework/data/raw/large_batch_trip_search_scenarios.csv)
+- Scenario dataset: `data/raw/large_batch_trip_search_scenarios.csv`
 - Purpose: broader regression coverage without unstable runtime cost
 
 ### `gtfs`
 
-- Trip source: narrow GTFS-style sample input under [gtfs_sample](C:/Users/Seguras/Downloads/cosas/ivo_personal/data-validation-automation-framework/data/raw/gtfs_sample)
-- Scenario dataset: [gtfs_batch_trip_search_scenarios.csv](C:/Users/Seguras/Downloads/cosas/ivo_personal/data-validation-automation-framework/data/raw/gtfs_batch_trip_search_scenarios.csv)
+- Trip source: `data/raw/gtfs_sample/`
+- Scenario dataset: `data/raw/gtfs_batch_trip_search_scenarios.csv`
 - Purpose: realistic source transformation while preserving the same canonical validation flow
 
 Supported GTFS subset in this portfolio slice:
@@ -73,7 +65,7 @@ Supported GTFS subset in this portfolio slice:
 
 ### Scenario datasets
 
-Scenarios live in external CSV files and define deterministic search requests:
+External CSV scenario packs define deterministic search requests:
 
 - `scenario_id`
 - `origin`
@@ -81,35 +73,33 @@ Scenarios live in external CSV files and define deterministic search requests:
 - `departure_date`
 - optional `carrier`
 - optional `stops_count`
-- metadata such as `pack`, `tag`, and `scenario_type`
+- optional metadata: `pack`, `tag`, `scenario_type`
 
 ### Run profiles
 
-Run profiles are external JSON files that select scenario subsets and label one validation run.
+External JSON run profiles select scenario subsets and label one validation run.
 
 Examples:
 
-- [default_trip_search_run_profile.json](C:/Users/Seguras/Downloads/cosas/ivo_personal/data-validation-automation-framework/data/raw/default_trip_search_run_profile.json)
-- [large_filters_trip_search_run_profile.json](C:/Users/Seguras/Downloads/cosas/ivo_personal/data-validation-automation-framework/data/raw/large_filters_trip_search_run_profile.json)
-- [gtfs_multidate_trip_search_run_profile.json](C:/Users/Seguras/Downloads/cosas/ivo_personal/data-validation-automation-framework/data/raw/gtfs_multidate_trip_search_run_profile.json)
+- `data/raw/default_trip_search_run_profile.json`
+- `data/raw/large_filters_trip_search_run_profile.json`
+- `data/raw/gtfs_multidate_trip_search_run_profile.json`
 
 ### Run suites
 
-Suites are external JSON definitions that execute ordered run profiles with suite-level policies and rollups.
+External JSON suites execute ordered run profiles with suite-level policies and rollups.
 
 Examples:
 
-- [default_trip_search_run_suite.json](C:/Users/Seguras/Downloads/cosas/ivo_personal/data-validation-automation-framework/data/raw/default_trip_search_run_suite.json)
-- [large_trip_search_run_suite.json](C:/Users/Seguras/Downloads/cosas/ivo_personal/data-validation-automation-framework/data/raw/large_trip_search_run_suite.json)
-- [gtfs_trip_search_run_suite.json](C:/Users/Seguras/Downloads/cosas/ivo_personal/data-validation-automation-framework/data/raw/gtfs_trip_search_run_suite.json)
+- `data/raw/default_trip_search_run_suite.json`
+- `data/raw/large_trip_search_run_suite.json`
+- `data/raw/gtfs_trip_search_run_suite.json`
 
 ## CLI Usage
 
-The framework exposes one profile-aware entrypoint:
+The framework exposes one profile-aware entrypoint at `src/framework/execution/trip_search_entrypoint.py`.
 
-- [trip_search_entrypoint.py](C:/Users/Seguras/Downloads/cosas/ivo_personal/data-validation-automation-framework/src/framework/execution/trip_search_entrypoint.py)
-
-Example commands:
+Examples:
 
 ```powershell
 .\.venv\Scripts\python -m src.framework.execution.trip_search_entrypoint --dataset-profile small
@@ -121,27 +111,28 @@ Example commands:
 Default behavior:
 
 - If only `--dataset-profile` is provided, execution defaults to `suite`.
-- The selected profile resolves its default scenario dataset, run profile, and suite assets through the centralized profile loader.
+- The selected profile resolves its default scenario dataset, run profile, and suite assets automatically.
 
-## Allure Reporting
+## Reporting
 
-Allure is the primary reporting layer.
+### Allure
 
-The framework attaches:
+Allure is the primary reporting layer. The framework attaches:
 
-- scenario-level expected/actual/mismatch artifacts
+- scenario-level expected, actual, and mismatch artifacts
+- aggregate comparison artifacts
 - batch summaries and issue-category rollups
 - suite summaries, policy results, and final status views
 
-Run Allure-enabled pytest locally:
+Example:
 
 ```powershell
 .\.venv\Scripts\python -m pytest tests --alluredir=artifacts/allure-results
 ```
 
-## Exported Artifacts
+### Exported artifacts
 
-When `TRIP_REPORT_EXPORT_DIR` is set, the same reporting bundles used for Allure are exported to disk.
+When `TRIP_REPORT_EXPORT_DIR` is set, the same bundle data used for Allure is exported to disk.
 
 Batch exports include:
 
@@ -159,27 +150,25 @@ Suite exports include:
 - `status_summary.json`
 - `suite_export_manifest.json`
 
-## CI/CD Overview
+## CI/CD
 
-GitHub Actions is set up in the same reusable-workflow style used in the reference API automation repo:
+GitHub Actions is set up with reusable validation workflows:
 
-- reusable test workflow
-- PR validation workflow
-- manual workflow dispatch
-- nightly regression workflow
+- `.github/workflows/run-validation.yml`
+- `.github/workflows/pr-validation.yml`
+- `.github/workflows/manual-run.yml`
+- `.github/workflows/nightly-regression.yml`
 
 The workflows:
 
 - install dependencies
 - run pytest with Allure output enabled
 - export report bundles to disk
-- upload artifacts for CI review
+- upload `artifacts/` for CI review
 
-See [run-validation.yml](C:/Users/Seguras/Downloads/cosas/ivo_personal/data-validation-automation-framework/.github/workflows/run-validation.yml), [pr-validation.yml](C:/Users/Seguras/Downloads/cosas/ivo_personal/data-validation-automation-framework/.github/workflows/pr-validation.yml), [manual-run.yml](C:/Users/Seguras/Downloads/cosas/ivo_personal/data-validation-automation-framework/.github/workflows/manual-run.yml), and [nightly-regression.yml](C:/Users/Seguras/Downloads/cosas/ivo_personal/data-validation-automation-framework/.github/workflows/nightly-regression.yml).
+## Why This Project Works As A QA Automation Portfolio Piece
 
-## Why This Is A Strong QA Automation Portfolio Project
-
-This repository demonstrates more than basic API or UI test scripting:
+This project demonstrates more than isolated test cases:
 
 - deterministic data-first validation design
 - reusable service/API/request separation
@@ -187,10 +176,10 @@ This repository demonstrates more than basic API or UI test scripting:
 - row-level and aggregate reconciliation
 - profile-aware execution and asset resolution
 - batch, run, and suite orchestration
-- reporting and export packaging for CI consumers
-- realistic source transformation through GTFS-derived inputs
+- Allure plus machine-readable export packaging
+- realistic GTFS-derived source transformation
 
-It shows how to design a maintainable validation platform, not just isolated tests.
+It shows how to build and maintain a validation platform, not just a collection of tests.
 
 ## Local Setup
 
@@ -200,11 +189,11 @@ python -m venv .venv
 .\.venv\Scripts\python -m pytest tests -q -rs -p no:cacheprovider
 ```
 
-Environment defaults are documented in [.env.example](C:/Users/Seguras/Downloads/cosas/ivo_personal/data-validation-automation-framework/.env.example).
+Environment defaults are documented in `.env.example`.
 
 ## Supporting Docs
 
-- [implementation-plan.md](C:/Users/Seguras/Downloads/cosas/ivo_personal/data-validation-automation-framework/docs/implementation-plan.md)
-- [target-architecture.md](C:/Users/Seguras/Downloads/cosas/ivo_personal/data-validation-automation-framework/docs/target-architecture.md)
-- [validation-strategy.md](C:/Users/Seguras/Downloads/cosas/ivo_personal/data-validation-automation-framework/docs/validation-strategy.md)
-- [reporting-and-ci.md](C:/Users/Seguras/Downloads/cosas/ivo_personal/data-validation-automation-framework/docs/reporting-and-ci.md)
+- `docs/implementation-plan.md`
+- `docs/target-architecture.md`
+- `docs/validation-strategy.md`
+- `docs/reporting-and-ci.md`

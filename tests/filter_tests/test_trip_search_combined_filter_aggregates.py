@@ -1,5 +1,5 @@
 import allure
-from assertpy import assert_that, soft_assertions
+from tests.assertions import assert_that, soft_assertions
 
 from src.framework.reporting.allure_helpers import attach_dataframe, attach_text
 
@@ -9,7 +9,7 @@ from src.framework.reporting.allure_helpers import attach_dataframe, attach_text
 @allure.sub_suite("Combined Filter Aggregates")
 class TestTripSearchCombinedFilterAggregates:
     @allure.title("Carrier and stops filters together reconcile aggregate summaries")
-    def test_combined_filtered_aggregate_consistency(
+    def test_combined_filter_expects_matching_aggregate_consistency(
         self,
         combined_filtered_expected_aggregate_summary,
         combined_filtered_actual_aggregate_summary,
@@ -29,13 +29,13 @@ class TestTripSearchCombinedFilterAggregates:
         )
 
         with soft_assertions():
-            assert_that(int(combined_filtered_expected_aggregate_summary.iloc[0]["result_count"])).is_equal_to(1)
-            assert_that(combined_filtered_aggregate_comparison_result.is_match).is_true()
-            assert_that(combined_filtered_aggregate_comparison_result.summary_mismatches.empty).is_true()
-            assert_that(combined_filtered_aggregate_comparison_result.carrier_count_mismatches.empty).is_true()
+            assert_that(int(combined_filtered_expected_aggregate_summary.iloc[0]["result_count"]), "Expected assertion for int(combined_filtered_expected_aggregate_summary.iloc[0]['result_count']) to hold").is_equal_to(1)
+            assert_that(combined_filtered_aggregate_comparison_result.is_match, "Expected assertion for combined_filtered_aggregate_comparison_result.is_match to hold").is_true()
+            assert_that(combined_filtered_aggregate_comparison_result.summary_mismatches.empty, "Expected assertion for combined_filtered_aggregate_comparison_result.summary_mismatches.empty to hold").is_true()
+            assert_that(combined_filtered_aggregate_comparison_result.carrier_count_mismatches.empty, "Expected assertion for combined_filtered_aggregate_comparison_result.carrier_count_mismatches.empty to hold").is_true()
 
     @allure.title("Carrier and stops filters together reconcile empty aggregate summaries")
-    def test_combined_filtered_aggregate_consistency_for_zero_match_case(
+    def test_combined_filter_expects_matching_aggregate_consistency_for_zero_match_case(
         self,
         combined_no_match_expected_aggregate_summary,
         combined_no_match_actual_aggregate_summary,
@@ -55,8 +55,8 @@ class TestTripSearchCombinedFilterAggregates:
         )
 
         with soft_assertions():
-            assert_that(int(combined_no_match_expected_aggregate_summary.iloc[0]["result_count"])).is_equal_to(0)
-            assert_that(int(combined_no_match_actual_aggregate_summary.iloc[0]["result_count"])).is_equal_to(0)
-            assert_that(combined_no_match_aggregate_comparison_result.is_match).is_true()
-            assert_that(combined_no_match_aggregate_comparison_result.summary_mismatches.empty).is_true()
-            assert_that(combined_no_match_aggregate_comparison_result.carrier_count_mismatches.empty).is_true()
+            assert_that(int(combined_no_match_expected_aggregate_summary.iloc[0]["result_count"]), "Expected assertion for int(combined_no_match_expected_aggregate_summary.iloc[0]['result_count']) to hold").is_equal_to(0)
+            assert_that(int(combined_no_match_actual_aggregate_summary.iloc[0]["result_count"]), "Expected assertion for int(combined_no_match_actual_aggregate_summary.iloc[0]['result_count']) to hold").is_equal_to(0)
+            assert_that(combined_no_match_aggregate_comparison_result.is_match, "Expected assertion for combined_no_match_aggregate_comparison_result.is_match to hold").is_true()
+            assert_that(combined_no_match_aggregate_comparison_result.summary_mismatches.empty, "Expected assertion for combined_no_match_aggregate_comparison_result.summary_mismatches.empty to hold").is_true()
+            assert_that(combined_no_match_aggregate_comparison_result.carrier_count_mismatches.empty, "Expected assertion for combined_no_match_aggregate_comparison_result.carrier_count_mismatches.empty to hold").is_true()

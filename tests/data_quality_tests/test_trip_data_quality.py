@@ -1,5 +1,5 @@
 import allure
-from assertpy import assert_that, soft_assertions
+from tests.assertions import assert_that, soft_assertions
 
 from src.framework.reporting.allure_helpers import attach_dataframe
 
@@ -11,7 +11,7 @@ class TestTripDataQuality:
     """Dataset-quality checks for canonical trip inputs."""
 
     @allure.title("Duplicate trip IDs are reported as a data-quality violation")
-    def test_duplicate_trip_ids_are_detected(self, trip_data_quality_validator, source_dataset_with_duplicate_trip_id):
+    def test_data_quality_expects_duplicate_trip_ids_to_be_detected(self, trip_data_quality_validator, source_dataset_with_duplicate_trip_id):
         """Verify duplicate trip identifiers are surfaced as quality issues."""
         result = trip_data_quality_validator.validate(source_dataset_with_duplicate_trip_id)
         attach_dataframe("duplicate-trip-id-rows", result.duplicate_trip_ids)
@@ -19,10 +19,10 @@ class TestTripDataQuality:
         with soft_assertions():
             assert_that(result.is_valid, "dataset with duplicate trip IDs should be invalid").is_false()
             assert_that(result.duplicate_trip_ids.empty, "duplicate trip rows should be reported").is_false()
-            assert_that(result.duplicate_trip_ids["trip_id"].tolist()).contains("TRIP-001")
+            assert_that(result.duplicate_trip_ids["trip_id"].tolist(), "Expected assertion for result.duplicate_trip_ids['trip_id'].tolist() to hold").contains("TRIP-001")
 
     @allure.title("Invalid departure dates are reported as a data-quality violation")
-    def test_invalid_departure_dates_are_detected(self, trip_data_quality_validator, source_dataset_with_invalid_departure_date):
+    def test_data_quality_expects_invalid_departure_dates_to_be_detected(self, trip_data_quality_validator, source_dataset_with_invalid_departure_date):
         """Verify malformed departure dates are surfaced as quality issues."""
         result = trip_data_quality_validator.validate(source_dataset_with_invalid_departure_date)
         attach_dataframe("invalid-departure-date-rows", result.invalid_departure_dates)
@@ -30,4 +30,4 @@ class TestTripDataQuality:
         with soft_assertions():
             assert_that(result.is_valid, "dataset with invalid departure dates should be invalid").is_false()
             assert_that(result.invalid_departure_dates.empty, "invalid departure date rows should be reported").is_false()
-            assert_that(result.invalid_departure_dates.iloc[0]["trip_id"]).is_equal_to("TRIP-001")
+            assert_that(result.invalid_departure_dates.iloc[0]["trip_id"], "Expected assertion for result.invalid_departure_dates.iloc[0]['trip_id'] to hold").is_equal_to("TRIP-001")

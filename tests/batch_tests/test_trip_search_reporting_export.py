@@ -1,7 +1,7 @@
 import json
 
 import allure
-from assertpy import assert_that, soft_assertions
+from tests.assertions import assert_that, soft_assertions
 
 from src.framework.reporting.trip_search_reporting import (
     build_batch_reporting_bundle,
@@ -17,7 +17,7 @@ from src.framework.reporting.trip_search_reporting import (
 @allure.sub_suite("Report Export")
 class TestTripSearchReportingExport:
     @allure.title("Batch reporting bundle exports structured files to disk")
-    def test_batch_reporting_bundle_exports_to_disk(
+    def test_batch_reporting_expects_bundle_to_export_to_disk(
         self,
         local_batch_test_dir,
         batch_validation_result,
@@ -29,14 +29,14 @@ class TestTripSearchReportingExport:
         )
 
         with soft_assertions():
-            assert_that(export_dir).is_not_none()
-            assert_that((export_dir / "scenario_summary.csv").exists()).is_true()
-            assert_that((export_dir / "run_summary.csv").exists()).is_true()
-            assert_that((export_dir / "issue_categories.csv").exists()).is_true()
-            assert_that((export_dir / "pack_summary.csv").exists()).is_true()
+            assert_that(export_dir, "Expected assertion for export_dir to hold").is_not_none()
+            assert_that((export_dir / "scenario_summary.csv").exists(), "Expected assertion for (export_dir / 'scenario_summary.csv').exists() to hold").is_true()
+            assert_that((export_dir / "run_summary.csv").exists(), "Expected assertion for (export_dir / 'run_summary.csv').exists() to hold").is_true()
+            assert_that((export_dir / "issue_categories.csv").exists(), "Expected assertion for (export_dir / 'issue_categories.csv').exists() to hold").is_true()
+            assert_that((export_dir / "pack_summary.csv").exists(), "Expected assertion for (export_dir / 'pack_summary.csv').exists() to hold").is_true()
 
     @allure.title("Suite reporting bundle exports structured files to disk")
-    def test_suite_reporting_bundle_exports_to_disk(
+    def test_suite_reporting_expects_bundle_to_export_to_disk(
         self,
         local_batch_test_dir,
         default_run_suite,
@@ -58,35 +58,35 @@ class TestTripSearchReportingExport:
         exported_relative_paths = {artifact["relative_path"] for artifact in manifest_payload["exported_artifacts"]}
 
         with soft_assertions():
-            assert_that(export_dir).is_not_none()
-            assert_that((export_dir / "suite_summary.csv").exists()).is_true()
-            assert_that((export_dir / "suite_run_summary.csv").exists()).is_true()
-            assert_that((export_dir / "issue_category_rollup.csv").exists()).is_true()
-            assert_that((export_dir / "suite_export_manifest.json").exists()).is_true()
-            assert_that(policy_payload["continue_on_failure"]).is_true()
-            assert_that(status_payload["dataset_profile"]).is_equal_to("small")
-            assert_that(status_payload["scenario_dataset_asset"]).is_equal_to("batch_trip_search_scenarios.csv")
-            assert_that(status_payload["suite_status"]).is_equal_to("passed")
-            assert_that(manifest_payload["suite_id"]).is_equal_to(default_run_suite.suite_id)
-            assert_that(manifest_payload["suite_label"]).is_equal_to(default_run_suite.suite_label)
-            assert_that(manifest_payload["execution_id"]).is_equal_to("suite-export")
-            assert_that(manifest_payload["dataset_profile"]).is_equal_to("small")
-            assert_that(manifest_payload["scenario_dataset_asset"]).is_equal_to("batch_trip_search_scenarios.csv")
-            assert_that(manifest_payload["suite_status"]).is_equal_to("passed")
-            assert_that(manifest_payload["total_runs"]).is_equal_to(len(default_run_suite.run_profiles))
-            assert_that(exported_relative_paths).contains(
+            assert_that(export_dir, "Expected assertion for export_dir to hold").is_not_none()
+            assert_that((export_dir / "suite_summary.csv").exists(), "Expected assertion for (export_dir / 'suite_summary.csv').exists() to hold").is_true()
+            assert_that((export_dir / "suite_run_summary.csv").exists(), "Expected assertion for (export_dir / 'suite_run_summary.csv').exists() to hold").is_true()
+            assert_that((export_dir / "issue_category_rollup.csv").exists(), "Expected assertion for (export_dir / 'issue_category_rollup.csv').exists() to hold").is_true()
+            assert_that((export_dir / "suite_export_manifest.json").exists(), "Expected assertion for (export_dir / 'suite_export_manifest.json').exists() to hold").is_true()
+            assert_that(policy_payload["continue_on_failure"], "Expected assertion for policy_payload['continue_on_failure'] to hold").is_true()
+            assert_that(status_payload["dataset_profile"], "Expected assertion for status_payload['dataset_profile'] to hold").is_equal_to("small")
+            assert_that(status_payload["scenario_dataset_asset"], "Expected assertion for status_payload['scenario_dataset_asset'] to hold").is_equal_to("batch_trip_search_scenarios.csv")
+            assert_that(status_payload["suite_status"], "Expected assertion for status_payload['suite_status'] to hold").is_equal_to("passed")
+            assert_that(manifest_payload["suite_id"], "Expected assertion for manifest_payload['suite_id'] to hold").is_equal_to(default_run_suite.suite_id)
+            assert_that(manifest_payload["suite_label"], "Expected assertion for manifest_payload['suite_label'] to hold").is_equal_to(default_run_suite.suite_label)
+            assert_that(manifest_payload["execution_id"], "Expected assertion for manifest_payload['execution_id'] to hold").is_equal_to("suite-export")
+            assert_that(manifest_payload["dataset_profile"], "Expected assertion for manifest_payload['dataset_profile'] to hold").is_equal_to("small")
+            assert_that(manifest_payload["scenario_dataset_asset"], "Expected assertion for manifest_payload['scenario_dataset_asset'] to hold").is_equal_to("batch_trip_search_scenarios.csv")
+            assert_that(manifest_payload["suite_status"], "Expected assertion for manifest_payload['suite_status'] to hold").is_equal_to("passed")
+            assert_that(manifest_payload["total_runs"], "Expected assertion for manifest_payload['total_runs'] to hold").is_equal_to(len(default_run_suite.run_profiles))
+            assert_that(exported_relative_paths, "Expected assertion for exported_relative_paths to hold").contains(
                 "suite_summary.csv",
                 "suite_run_summary.csv",
                 "issue_category_rollup.csv",
                 "policy_summary.json",
                 "status_summary.json",
             )
-            assert_that([subset["run_id"] for subset in manifest_payload["selected_subsets"]]).is_equal_to(
+            assert_that([subset["run_id"] for subset in manifest_payload["selected_subsets"]], "Expected assertion for [subset['run_id'] for subset in manifest_payload['selected_subsets']] to hold").is_equal_to(
                 list(reporting_bundle.suite_run_summary_frame["run_id"])
             )
 
     @allure.title("Report export helpers are safe when no output root is configured")
-    def test_reporting_export_helpers_return_none_when_output_root_is_not_configured(
+    def test_reporting_export_expects_none_when_output_root_is_not_configured(
         self,
         batch_validation_result,
         default_run_suite,
@@ -108,11 +108,11 @@ class TestTripSearchReportingExport:
         )
 
         with soft_assertions():
-            assert_that(batch_export).is_none()
-            assert_that(suite_export).is_none()
+            assert_that(batch_export, "Expected assertion for batch_export to hold").is_none()
+            assert_that(suite_export, "Expected assertion for suite_export to hold").is_none()
 
     @allure.title("Suite export manifest builder is stable for direct bundle inspection")
-    def test_build_suite_export_manifest_returns_expected_metadata(
+    def test_suite_export_manifest_expects_expected_metadata(
         self,
         default_run_suite,
         batch_scenarios,
@@ -130,8 +130,8 @@ class TestTripSearchReportingExport:
         )
 
         with soft_assertions():
-            assert_that(manifest.schema_version).is_equal_to("1.0")
-            assert_that(manifest.execution_id).is_equal_to("manual-suite-export")
-            assert_that(manifest.suite_id).is_equal_to(default_run_suite.suite_id)
-            assert_that(manifest.total_runs).is_equal_to(len(default_run_suite.run_profiles))
-            assert_that(manifest.exported_artifacts).is_length(5)
+            assert_that(manifest.schema_version, "Expected assertion for manifest.schema_version to hold").is_equal_to("1.0")
+            assert_that(manifest.execution_id, "Expected assertion for manifest.execution_id to hold").is_equal_to("manual-suite-export")
+            assert_that(manifest.suite_id, "Expected assertion for manifest.suite_id to hold").is_equal_to(default_run_suite.suite_id)
+            assert_that(manifest.total_runs, "Expected assertion for manifest.total_runs to hold").is_equal_to(len(default_run_suite.run_profiles))
+            assert_that(manifest.exported_artifacts, "Expected assertion for manifest.exported_artifacts to hold").is_length(5)

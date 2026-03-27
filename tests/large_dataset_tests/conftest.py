@@ -26,6 +26,13 @@ def large_loaded_trip_dataset(config, trip_dataset_context_loader) -> LoadedTrip
     return trip_dataset_context_loader.load(config, dataset_profile="large")
 
 
+@pytest.fixture()
+def local_large_test_dir() -> Path:
+    test_dir = Path(__file__).resolve().parent / ".local_test_data"
+    test_dir.mkdir(exist_ok=True)
+    return test_dir
+
+
 @pytest.fixture(scope="session")
 def large_dataset_profile_frame(
     large_dataset_builder: SyntheticTripDatasetBuilder,
