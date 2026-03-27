@@ -166,9 +166,7 @@ The workflows:
 - export report bundles to disk
 - upload `artifacts/` for CI review
 
-## Why This Project Works As A QA Automation Portfolio Piece
-
-This project demonstrates more than isolated test cases:
+## This repository demonstrates
 
 - deterministic data-first validation design
 - reusable service/API/request separation
