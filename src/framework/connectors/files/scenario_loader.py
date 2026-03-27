@@ -7,6 +7,7 @@ import pandas as pd
 
 from src.domain.trip_search.search_models import TripSearchScenario
 from src.framework.connectors.files.dataset_loader import DatasetLoader
+from src.framework.logging.logger import get_logger
 from src.framework.utils.date_utils import parse_iso_date, to_iso_date
 from src.framework.utils.numeric_utils import normalize_int
 from src.validators.quality.trip_search_scenario_preflight_validator import (
@@ -14,6 +15,8 @@ from src.validators.quality.trip_search_scenario_preflight_validator import (
     ScenarioPreflightValidationError,
     TripSearchScenarioPreflightValidator,
 )
+
+LOGGER = get_logger("trip_search.scenario_loader")
 
 
 @dataclass(frozen=True)
@@ -41,16 +44,19 @@ class TripSearchScenarioLoader:
 
     def load_csv(self, dataset_path: Path) -> LoadedTripSearchScenarioDataset:
         """Read a scenario CSV, normalize it, and return typed scenarios."""
+        LOGGER.info("Loading scenario dataset from %s", dataset_path)
         scenario_frame = self.dataset_loader.load_csv(dataset_path).copy()
         self._validate_schema(scenario_frame)
         normalized_frame = self._normalize_frame(scenario_frame)
         preflight_result = self.preflight_validator.validate(normalized_frame, scenario_frame)
         if not preflight_result.is_valid:
+            LOGGER.info("Scenario dataset preflight failed with %s issues", len(preflight_result.issues_frame))
             raise ScenarioPreflightValidationError(
                 "Scenario dataset failed preflight validation",
                 preflight_result,
             )
         scenarios = [self._build_scenario(record) for record in normalized_frame.to_dict(orient="records")]
+        LOGGER.info("Loaded %s normalized scenarios", len(scenarios))
         return LoadedTripSearchScenarioDataset(
             scenario_frame=normalized_frame,
             scenarios=scenarios,

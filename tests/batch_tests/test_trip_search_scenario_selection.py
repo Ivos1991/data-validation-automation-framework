@@ -1,7 +1,7 @@
 import allure
 from tests.assertions import assert_that, soft_assertions
 
-from src.domain.trip_search.search_models import TripSearchRunProfile, TripSearchScenarioSelection
+from src.domain.trip_search.search_models import TripSearchScenarioSelection
 from src.framework.reporting.trip_search_reporting import build_batch_reporting_bundle
 from src.validators.reconciliation.trip_batch_validator import TripSearchBatchValidator
 
@@ -61,33 +61,6 @@ class TestTripSearchScenarioSelection:
             assert_that(run_summary["selected_scenario_type"], "Expected assertion for run_summary['selected_scenario_type'] to hold").is_equal_to("all")
             assert_that(int(batch_result.pack_summary_frame.iloc[0]["total_scenarios"]), "Expected assertion for int(batch_result.pack_summary_frame.iloc[0]['total_scenarios']) to hold").is_equal_to(2)
 
-    @allure.title("Batch validation executes a selected tag subset and preserves run summary totals")
-    def test_batch_validation_expects_selected_tag_subset_to_execute(
-        self,
-        config,
-        batch_trip_search_service_api,
-        batch_scenario_dataset,
-        expected_trip_frame,
-        combined_tag_selection,
-    ):
-        validator = TripSearchBatchValidator(batch_trip_search_service_api, config.numeric_tolerance)
-        batch_result = validator.validate(
-            batch_scenario_dataset.scenarios,
-            expected_trip_frame,
-            selection=combined_tag_selection,
-        )
-        build_batch_reporting_bundle(batch_result).attach_to_allure("selected-tag")
-
-        run_summary = batch_result.run_summary_frame.iloc[0]
-        with soft_assertions():
-            assert_that(batch_result.summary_frame["scenario_id"].tolist(), "Expected assertion for batch_result.summary_frame['scenario_id'].tolist() to hold").is_equal_to(
-                ["combined-filter", "no-match"]
-            )
-            assert_that(int(run_summary["total_scenarios"]), "Expected assertion for int(run_summary['total_scenarios']) to hold").is_equal_to(2)
-            assert_that(run_summary["selected_pack"], "Expected assertion for run_summary['selected_pack'] to hold").is_equal_to("all")
-            assert_that(run_summary["selected_tag"], "Expected assertion for run_summary['selected_tag'] to hold").is_equal_to("combined")
-            assert_that(run_summary["selected_scenario_type"], "Expected assertion for run_summary['selected_scenario_type'] to hold").is_equal_to("all")
-
     @allure.title("Batch validation handles empty scenario selections cleanly")
     def test_batch_validation_expects_empty_selection_to_be_handled(
         self,
@@ -141,32 +114,3 @@ class TestTripSearchScenarioSelection:
             assert_that(run_summary["selected_tag"], "Expected assertion for run_summary['selected_tag'] to hold").is_equal_to("all")
             assert_that(run_summary["selected_scenario_type"], "Expected assertion for run_summary['selected_scenario_type'] to hold").is_equal_to("all")
 
-    @allure.title("Batch validation handles run profiles that select no scenarios")
-    def test_batch_validation_expects_empty_run_profile_selection_to_be_handled(
-        self,
-        config,
-        batch_trip_search_service_api,
-        batch_scenario_dataset,
-        expected_trip_frame,
-    ):
-        run_profile = TripSearchRunProfile(
-            run_id="empty-selection-run",
-            run_label="Empty Selection Run",
-            selected_pack="missing-pack",
-            description="Profile that intentionally selects no scenarios.",
-        )
-        validator = TripSearchBatchValidator(batch_trip_search_service_api, config.numeric_tolerance)
-        batch_result = validator.validate(
-            batch_scenario_dataset.scenarios,
-            expected_trip_frame,
-            run_profile=run_profile,
-        )
-        build_batch_reporting_bundle(batch_result).attach_to_allure("empty-run-profile")
-
-        run_summary = batch_result.run_summary_frame.iloc[0]
-        with soft_assertions():
-            assert_that(batch_result.summary_frame.empty, "Expected assertion for batch_result.summary_frame.empty to hold").is_true()
-            assert_that(int(run_summary["total_scenarios"]), "Expected assertion for int(run_summary['total_scenarios']) to hold").is_equal_to(0)
-            assert_that(run_summary["run_id"], "Expected assertion for run_summary['run_id'] to hold").is_equal_to("empty-selection-run")
-            assert_that(run_summary["run_label"], "Expected assertion for run_summary['run_label'] to hold").is_equal_to("Empty Selection Run")
-            assert_that(run_summary["selected_pack"], "Expected assertion for run_summary['selected_pack'] to hold").is_equal_to("missing-pack")

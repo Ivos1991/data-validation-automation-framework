@@ -14,10 +14,13 @@ from src.domain.trip_search.search_models import TripSearchRunProfile, TripSearc
 from src.framework.config.config_manager import ConfigManager
 from src.framework.connectors.files.dataset_loader import DatasetLoader
 from src.framework.connectors.files.gtfs_loader import GtfsDatasetLoader
+from src.framework.logging.logger import get_logger
 from src.framework.connectors.files.synthetic_trip_dataset_builder import SyntheticTripDatasetBuilder
 from src.framework.utils.dataframe_utils import build_expected_trip_frame
 from src.transformers.gtfs_trip_transformer import GtfsTripTransformer
 from src.transformers.trip_model_mapper import TripModelMapper
+
+LOGGER = get_logger("trip_search.dataset_context_loader")
 
 
 @dataclass(frozen=True)
@@ -68,6 +71,7 @@ class TripDatasetContextLoader:
         )
         profile_definition = get_dataset_profile_definition(resolved_profile)
         trip_dataset_source = config.trip_dataset_source if resolved_profile == config.dataset_profile else profile_definition.trip_dataset_source
+        LOGGER.info("Resolved dataset profile '%s' with source '%s'", resolved_profile, trip_dataset_source)
         if resolved_profile == config.dataset_profile:
             scenario_dataset_path = config.scenario_dataset_path
             default_run_profile_path = config.run_profile_path
@@ -80,6 +84,7 @@ class TripDatasetContextLoader:
         self._ensure_existing_path(default_run_profile_path, "default_run_profile_path")
         self._ensure_existing_path(default_run_suite_path, "default_run_suite_path")
         raw_trip_frame = self._load_raw_trip_frame(config, resolved_profile, trip_dataset_source, repo_root)
+        LOGGER.info("Loaded %s raw trip rows for dataset profile '%s'", len(raw_trip_frame), resolved_profile)
         normalized_trips = self.trip_model_mapper.from_dataframe(raw_trip_frame)
         expected_trip_frame = build_expected_trip_frame(raw_trip_frame)
         return LoadedTripDatasetContext(
@@ -119,11 +124,14 @@ class TripDatasetContextLoader:
         """Load the raw canonical trip frame from CSV, synthetic, or GTFS sources."""
         if trip_dataset_source.startswith("csv:"):
             dataset_path = config.dataset_path if dataset_profile == config.dataset_profile and config.dataset_path is not None else repo_root / trip_dataset_source.removeprefix("csv:")
+            LOGGER.info("Loading CSV-backed trip dataset from %s", dataset_path)
             return self.dataset_loader.load_csv(dataset_path)
         if trip_dataset_source == "synthetic:large":
+            LOGGER.info("Building synthetic large trip dataset")
             return self.synthetic_trip_dataset_builder.build_large_dataframe()
         if trip_dataset_source.startswith("gtfs:"):
             gtfs_directory = repo_root / trip_dataset_source.removeprefix("gtfs:")
+            LOGGER.info("Loading GTFS-backed trip dataset from %s", gtfs_directory)
             loaded_gtfs_dataset = self.gtfs_dataset_loader.load_directory(gtfs_directory)
             return self.gtfs_trip_transformer.transform(loaded_gtfs_dataset)
         raise ValueError(f"Unsupported trip dataset source for profile '{dataset_profile}': {trip_dataset_source}")

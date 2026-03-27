@@ -7,7 +7,10 @@ import pandas as pd
 from src.domain.trip_search.search_models import TripSearchRunProfile, TripSearchRunSuite, TripSearchRunSuitePolicy
 from src.domain.trip_search.search_service_api import SearchServiceAPI
 from src.framework.connectors.files.run_profile_loader import TripSearchRunProfileLoader
+from src.framework.logging.logger import get_logger
 from src.validators.reconciliation.trip_batch_validator import BatchValidationResult, TripSearchBatchValidator
+
+LOGGER = get_logger("trip_search.suite_executor")
 
 
 SUITE_SUMMARY_COLUMNS = [
@@ -88,10 +91,12 @@ class TripSearchRunSuiteExecutor:
         scenario_dataset_asset: str = "unknown",
     ) -> TripSearchRunSuiteResult:
         """Execute a suite through the existing batch validator and roll up the results."""
+        LOGGER.info("Starting suite execution suite_id=%s run_count=%s", suite.suite_id, len(suite.run_profiles))
         run_results: list[SuiteRunResult] = []
         stopped_early = False
         for run_profile_reference in suite.run_profiles:
             run_profile = self.run_profile_loader.load_json(run_profile_reference.profile_path)
+            LOGGER.info("Executing suite run profile '%s'", run_profile.run_id)
             batch_result = self.batch_validator.validate(
                 scenarios,
                 expected_trip_frame,
@@ -101,6 +106,7 @@ class TripSearchRunSuiteExecutor:
             )
             run_results.append(SuiteRunResult(run_profile=run_profile, batch_result=batch_result))
             if self._should_stop_early(suite.policy, run_results[-1].batch_result, run_results):
+                LOGGER.info("Suite execution stopped early after run profile '%s'", run_profile.run_id)
                 stopped_early = True
                 break
 
@@ -120,6 +126,12 @@ class TripSearchRunSuiteExecutor:
             ),
         )
         issue_category_rollup_frame = self._build_issue_category_rollup_frame(run_results)
+        LOGGER.info(
+            "Finished suite execution suite_id=%s suite_status=%s total_runs=%s",
+            suite.suite_id,
+            suite_summary_frame.loc[0, "suite_status"],
+            len(run_results),
+        )
         return TripSearchRunSuiteResult(
             suite=suite,
             run_results=run_results,

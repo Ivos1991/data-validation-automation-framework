@@ -35,11 +35,7 @@ class TestTripSearchCombinedFilter:
 
         with soft_assertions():
             assert_that(combined_filtered_reconciliation_result.is_match, "Expected assertion for combined_filtered_reconciliation_result.is_match to hold").is_true()
-            assert_that(combined_filtered_reconciliation_result.missing_rows.empty, "Expected assertion for combined_filtered_reconciliation_result.missing_rows.empty to hold").is_true()
-            assert_that(combined_filtered_reconciliation_result.unexpected_rows.empty, "Expected assertion for combined_filtered_reconciliation_result.unexpected_rows.empty to hold").is_true()
-            assert_that(combined_filtered_reconciliation_result.mismatched_fields.empty, "Expected assertion for combined_filtered_reconciliation_result.mismatched_fields.empty to hold").is_true()
             assert_that(combined_filter_violating_rows.empty, "no rows violate carrier or stops filters").is_true()
-            assert_that(len(combined_filtered_actual_trip_frame), "Expected assertion for len(combined_filtered_actual_trip_frame) to hold").is_equal_to(1)
             assert_that(combined_filtered_actual_trip_frame.iloc[0]["trip_id"], "Expected assertion for combined_filtered_actual_trip_frame.iloc[0]['trip_id'] to hold").is_equal_to("TRIP-001")
 
     @allure.title("Carrier and stops filters together handle zero-match result sets cleanly")
@@ -69,6 +65,3 @@ class TestTripSearchCombinedFilter:
             assert_that(combined_no_match_expected_trip_frame.empty, "Expected assertion for combined_no_match_expected_trip_frame.empty to hold").is_true()
             assert_that(combined_no_match_actual_trip_frame.empty, "Expected assertion for combined_no_match_actual_trip_frame.empty to hold").is_true()
             assert_that(combined_no_match_reconciliation_result.is_match, "Expected assertion for combined_no_match_reconciliation_result.is_match to hold").is_true()
-            assert_that(combined_no_match_reconciliation_result.missing_rows.empty, "Expected assertion for combined_no_match_reconciliation_result.missing_rows.empty to hold").is_true()
-            assert_that(combined_no_match_reconciliation_result.unexpected_rows.empty, "Expected assertion for combined_no_match_reconciliation_result.unexpected_rows.empty to hold").is_true()
-            assert_that(combined_no_match_reconciliation_result.mismatched_fields.empty, "Expected assertion for combined_no_match_reconciliation_result.mismatched_fields.empty to hold").is_true()

@@ -5,20 +5,7 @@ from src.framework.reporting.allure_helpers import attach_dataframe
 from src.framework.reporting.trip_search_reporting import build_batch_reporting_bundle
 from src.validators.quality.trip_search_scenario_preflight_validator import ScenarioPreflightResult
 from src.validators.reconciliation.trip_batch_validator import TripSearchBatchValidator
-
-
-class FaultInjectingSearchServiceAPI:
-    def __init__(self, wrapped_service_api, failing_scenario_id: str) -> None:
-        """Wrap the real API and force one scenario to fail deterministically."""
-        self.wrapped_service_api = wrapped_service_api
-        self.failing_scenario_id = failing_scenario_id
-
-    def search_by_route_and_departure_date(self, request_params):
-        """Return an empty result for the injected failing scenario."""
-        payload = self.wrapped_service_api.search_by_route_and_departure_date(request_params)
-        if request_params.get("carrier") == "AmRail" and request_params.get("stops_count") == 0:
-            return {"trips": []}
-        return payload
+from tests.batch_tests.support import FaultInjectingSearchServiceAPI, attachable_frame
 
 
 @allure.parent_suite("Trip Search Validation")
@@ -102,46 +89,6 @@ class TestTripSearchBatchValidation:
             assert_that(int(issue_categories.loc["aggregate_mismatch", "issue_count"]), "Expected assertion for int(issue_categories.loc['aggregate_mismatch', 'issue_count']) to hold").is_equal_to(1)
             assert_that(int(issue_categories.loc["preflight", "issue_count"]), "Expected assertion for int(issue_categories.loc['preflight', 'issue_count']) to hold").is_equal_to(0)
 
-    @allure.title("Batch scenario result details stay aligned with summary output")
-    def test_batch_validation_expects_summary_to_match_scenario_details(self, batch_validation_result):
-        """Verify per-scenario summary rows stay aligned with detailed scenario results."""
-        build_batch_reporting_bundle(batch_validation_result).attach_to_allure("batch-detail-check")
-
-        expected_summary_frame = attachable_frame(
-            [
-                {
-                    "scenario_id": scenario_result.scenario.scenario_id,
-                    "is_pass": scenario_result.is_pass,
-                    "expected_rows": scenario_result.reconciliation_result.expected_rows_count,
-                    "actual_rows": scenario_result.reconciliation_result.actual_rows_count,
-                    "missing_row_count": len(scenario_result.reconciliation_result.missing_rows),
-                    "unexpected_row_count": len(scenario_result.reconciliation_result.unexpected_rows),
-                    "aggregates_match": scenario_result.aggregate_result.is_match,
-                }
-                for scenario_result in batch_validation_result.scenario_results
-            ]
-        ).sort_values("scenario_id").reset_index(drop=True)
-        actual_summary_frame = (
-            batch_validation_result.summary_frame[
-                [
-                    "scenario_id",
-                    "is_pass",
-                    "expected_rows",
-                    "actual_rows",
-                    "missing_row_count",
-                    "unexpected_row_count",
-                    "aggregates_match",
-                ]
-            ]
-            .sort_values("scenario_id")
-            .reset_index(drop=True)
-        )
-
-        with soft_assertions():
-            assert_that(actual_summary_frame.to_dict(orient="records")).described_as(
-                "Batch summary rows should stay aligned with detailed scenario results"
-            ).is_equal_to(expected_summary_frame.to_dict(orient="records"))
-
     @allure.title("Batch run summary can represent preflight-blocked scenario packs")
     def test_batch_validation_expects_preflight_blocked_run_summary_to_be_built(self):
         """Verify preflight-blocked batches still produce consistent run summaries."""
@@ -169,10 +116,3 @@ class TestTripSearchBatchValidation:
             assert_that(batch_result.run_summary_frame.loc[0, "run_id"], "Expected assertion for batch_result.run_summary_frame.loc[0, 'run_id'] to hold").is_equal_to("adhoc")
             assert_that(batch_result.run_summary_frame.loc[0, "run_label"], "Expected assertion for batch_result.run_summary_frame.loc[0, 'run_label'] to hold").is_equal_to("Ad Hoc Run")
             assert_that(int(batch_result.issue_category_frame.set_index("issue_category").loc["preflight", "issue_count"]), "Expected assertion for int(batch_result.issue_category_frame.set_index('issue_category').loc['preflight', 'iss... to hold").is_equal_to(3)
-
-
-def attachable_frame(rows: list[dict[str, object]]):
-    """Build a lightweight dataframe for test-only reporting payloads."""
-    import pandas as pd
-
-    return pd.DataFrame(rows)

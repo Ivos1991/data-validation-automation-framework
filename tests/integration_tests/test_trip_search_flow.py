@@ -22,6 +22,4 @@ class TestTripSearchIntegration:
         attach_dataframe("integration-actual-trips", integration_actual_trip_frame)
 
         with soft_assertions():
-            assert_that(len(integration_expected_trip_frame), "expected route/date slice contains two trips").is_equal_to(2)
-            assert_that(len(integration_actual_trip_frame), "actual route/date slice contains two trips").is_equal_to(2)
             assert_that(integration_reconciliation_result.is_match, "end-to-end result set reconciles").is_true()

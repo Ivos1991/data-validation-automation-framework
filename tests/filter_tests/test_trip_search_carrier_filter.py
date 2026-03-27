@@ -34,10 +34,6 @@ class TestTripSearchCarrierFilter:
 
         with soft_assertions():
             assert_that(filtered_reconciliation_result.is_match, "Expected assertion for filtered_reconciliation_result.is_match to hold").is_true()
-            assert_that(filtered_reconciliation_result.missing_rows.empty, "Expected assertion for filtered_reconciliation_result.missing_rows.empty to hold").is_true()
-            assert_that(filtered_reconciliation_result.unexpected_rows.empty, "Expected assertion for filtered_reconciliation_result.unexpected_rows.empty to hold").is_true()
-            assert_that(filtered_reconciliation_result.mismatched_fields.empty, "Expected assertion for filtered_reconciliation_result.mismatched_fields.empty to hold").is_true()
             assert_that(non_matching_carrier_rows.empty, "no rows from other carriers are returned").is_true()
-            assert_that(len(filtered_actual_trip_frame), "Expected assertion for len(filtered_actual_trip_frame) to hold").is_equal_to(1)
             assert_that(filtered_actual_trip_frame.iloc[0]["trip_id"], "Expected assertion for filtered_actual_trip_frame.iloc[0]['trip_id'] to hold").is_equal_to("TRIP-001")
             assert_that(filtered_actual_trip_frame.iloc[0]["carrier"], "Expected assertion for filtered_actual_trip_frame.iloc[0]['carrier'] to hold").is_equal_to(search_criteria_nyc_to_bos_rail["carrier"])

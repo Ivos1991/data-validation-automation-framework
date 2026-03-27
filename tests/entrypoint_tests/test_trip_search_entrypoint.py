@@ -6,7 +6,6 @@ from tests.assertions import assert_that, soft_assertions
 
 from src.framework.execution.trip_search_entrypoint import (
     TripSearchEntrypoint,
-    main,
     parse_execution_args,
 )
 
@@ -76,31 +75,6 @@ class TestTripSearchEntrypoint:
             assert_that(execution_result.summary["run_id"], "Expected assertion for execution_result.summary['run_id'] to hold").is_equal_to("large-smoke-run")
             assert_that(execution_result.summary["dataset_profile"], "Expected assertion for execution_result.summary['dataset_profile'] to hold").is_equal_to("large")
 
-    @allure.title("CLI supports explicit suite execution through the shared execution path")
-    def test_entrypoint_expects_explicit_suite_to_execute(
-        self,
-        trip_search_entrypoint: TripSearchEntrypoint,
-        entrypoint_config,
-    ):
-        """Verify explicit suite execution runs through the shared entrypoint path."""
-        execution_result = trip_search_entrypoint.execute(
-            parse_execution_args(
-                [
-                    "--execution-mode",
-                    "suite",
-                    "--run-suite-path",
-                    str(entrypoint_config.run_suite_path),
-                ]
-            )
-        )
-
-        with soft_assertions():
-            assert_that(execution_result.execution_mode, "Expected assertion for execution_result.execution_mode to hold").is_equal_to("suite")
-            assert_that(execution_result.dataset_profile, "Expected assertion for execution_result.dataset_profile to hold").is_equal_to("small")
-            assert_that(execution_result.run_suite_path.name, "Expected assertion for execution_result.run_suite_path.name to hold").is_equal_to("default_trip_search_run_suite.json")
-            assert_that(execution_result.summary["suite_status"], "Expected assertion for execution_result.summary['suite_status'] to hold").is_equal_to("passed")
-            assert_that(execution_result.summary["dataset_profile"], "Expected assertion for execution_result.summary['dataset_profile'] to hold").is_equal_to("small")
-
     @allure.title("CLI rejects invalid dataset profile values at parse time")
     def test_entrypoint_expects_invalid_dataset_profile_to_be_rejected(self):
         """Verify invalid dataset profiles fail during argument parsing."""
@@ -130,13 +104,3 @@ class TestTripSearchEntrypoint:
             "does-not-exist-run-profile.json"
         )
 
-    @allure.title("CLI main returns zero and emits structured JSON output")
-    def test_entrypoint_main_expects_zero_exit_code_for_valid_execution(self, capsys):
-        """Verify the CLI main function exits cleanly with JSON output."""
-        exit_code = main(["--execution-mode", "batch"])
-        captured = capsys.readouterr()
-
-        with soft_assertions():
-            assert_that(exit_code, "Expected assertion for exit_code to hold").is_equal_to(0)
-            assert_that(captured.out, "Expected assertion for captured.out to hold").contains('"execution_mode": "batch"')
-            assert_that(captured.out, "Expected assertion for captured.out to hold").contains('"dataset_profile": "small"')

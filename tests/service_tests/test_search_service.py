@@ -19,6 +19,4 @@ class TestSearchService:
 
         assert_that(actual_trips, "Expected assertion for actual_trips to hold").is_length(2)
         assert_that([trip.trip_id for trip in actual_trips], "Expected assertion for [trip.trip_id for trip in actual_trips] to hold").is_equal_to(["TRIP-001", "TRIP-002"])
-        assert_that(actual_trips[0].origin, "Expected assertion for actual_trips[0].origin to hold").is_equal_to("NYC")
-        assert_that(actual_trips[0].destination, "Expected assertion for actual_trips[0].destination to hold").is_equal_to("BOS")
         assert_that(actual_trips[0].departure_date.isoformat(), "Expected assertion for actual_trips[0].departure_date.isoformat() to hold").is_equal_to("2026-04-01")

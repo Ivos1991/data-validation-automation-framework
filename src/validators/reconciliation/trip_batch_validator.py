@@ -12,6 +12,7 @@ from src.domain.trip_search.search_scenario_selector import TripSearchScenarioSe
 from src.domain.trip_search.search_service import search_by_route_and_departure_date
 from src.domain.trip_search.search_service_api import SearchServiceAPI
 from src.domain.trip_search.search_service_request import SearchServiceRequest
+from src.framework.logging.logger import get_logger
 from src.framework.utils.dataframe_utils import (
     CANONICAL_TRIP_COLUMNS,
     build_aggregate_summary,
@@ -21,6 +22,8 @@ from src.framework.utils.dataframe_utils import (
 from src.validators.aggregate.trip_aggregate_validator import AggregateComparisonResult, TripAggregateValidator
 from src.validators.quality.trip_search_scenario_preflight_validator import ScenarioPreflightResult
 from src.validators.reconciliation.trip_reconciliation_validator import ReconciliationResult, TripReconciliationValidator
+
+LOGGER = get_logger("trip_search.batch_validator")
 
 
 RUN_SUMMARY_COLUMNS = [
@@ -129,9 +132,21 @@ class TripSearchBatchValidator:
         resolved_scenario_dataset_asset = self._resolve_scenario_dataset_asset(dataset_profile, scenario_dataset_asset)
         effective_selection = run_profile.to_selection() if run_profile is not None else selection
         selected_scenarios = self.scenario_selector.select(scenarios, effective_selection)
+        LOGGER.info(
+            "Starting batch validation run_id=%s dataset_profile=%s total_selected_scenarios=%s",
+            "adhoc" if run_profile is None else run_profile.run_id,
+            dataset_profile,
+            len(selected_scenarios),
+        )
         scenario_results = [self._validate_scenario(scenario, expected_trip_frame) for scenario in selected_scenarios]
         summary_frame = self._build_summary_frame(scenario_results)
         duration_ms = int((perf_counter() - start_time) * 1000)
+        LOGGER.info(
+            "Finished batch validation passed=%s failed=%s duration_ms=%s",
+            sum(1 for result in scenario_results if result.is_pass),
+            sum(1 for result in scenario_results if not result.is_pass),
+            duration_ms,
+        )
         return BatchValidationResult(
             scenario_results=scenario_results,
             summary_frame=summary_frame,
@@ -215,6 +230,7 @@ class TripSearchBatchValidator:
 
     def _validate_scenario(self, scenario: TripSearchScenario, expected_trip_frame: pd.DataFrame) -> BatchScenarioResult:
         start_time = perf_counter()
+        LOGGER.info("Validating scenario '%s' with filters=%s", scenario.scenario_id, scenario.to_search_filters())
         scenario_filters = scenario.to_search_filters()
         expected_subset = filter_expected_trip_frame(expected_trip_frame, **scenario_filters)
         request = SearchServiceRequest.build(**scenario_filters)
@@ -233,6 +249,14 @@ class TripSearchBatchValidator:
             actual_carrier_counts=actual_carrier_counts,
         )
         duration_ms = int((perf_counter() - start_time) * 1000)
+        LOGGER.info(
+            "Scenario '%s' completed pass=%s expected_rows=%s actual_rows=%s duration_ms=%s",
+            scenario.scenario_id,
+            reconciliation_result.is_match and aggregate_result.is_match,
+            reconciliation_result.expected_rows_count,
+            reconciliation_result.actual_rows_count,
+            duration_ms,
+        )
 
         return BatchScenarioResult(
             scenario=scenario,

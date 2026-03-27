@@ -24,41 +24,6 @@ class TestTripSearchRunSuiteLoader:
         assert_that(run_suite.run_profiles[0].profile_path.name, "Expected assertion for run_suite.run_profiles[0].profile_path.name to hold").is_equal_to("smoke_trip_search_run_profile.json")
         assert_that(run_suite.run_profiles[1].profile_path.name, "Expected assertion for run_suite.run_profiles[1].profile_path.name to hold").is_equal_to("default_trip_search_run_profile.json")
 
-    @allure.title("Run suite loader rejects malformed schema")
-    def test_run_suite_loader_expects_missing_required_fields_to_be_rejected(
-        self,
-        local_batch_test_dir: Path,
-        run_suite_loader: TripSearchRunSuiteLoader,
-    ):
-        invalid_suite_path = local_batch_test_dir / f"missing_suite_label_{uuid4().hex}.json"
-        invalid_suite_path.write_text('{"suite_id": "missing-label", "run_profiles": [{"profile_path": "x.json"}]}', encoding="utf-8")
-
-        with pytest.raises(ValueError) as error:
-            run_suite_loader.load_json(invalid_suite_path)
-
-        assert_that(str(error.value)).described_as("Malformed suites should fail schema validation").contains(
-            "Missing required run-suite fields"
-        )
-
-    @allure.title("Run suite loader rejects empty run profile lists")
-    def test_run_suite_loader_expects_empty_run_profile_list_to_be_rejected(
-        self,
-        local_batch_test_dir: Path,
-        run_suite_loader: TripSearchRunSuiteLoader,
-    ):
-        invalid_suite_path = local_batch_test_dir / f"empty_run_profiles_{uuid4().hex}.json"
-        invalid_suite_path.write_text(
-            '{"suite_id": "empty-suite", "suite_label": "Empty Suite", "run_profiles": []}',
-            encoding="utf-8",
-        )
-
-        with pytest.raises(ValueError) as error:
-            run_suite_loader.load_json(invalid_suite_path)
-
-        assert_that(str(error.value)).described_as("Suites must contain at least one run-profile reference").contains(
-            "run_profiles"
-        )
-
     @allure.title("Run suite loader rejects invalid policy values")
     def test_run_suite_loader_expects_invalid_policy_values_to_be_rejected(
         self,

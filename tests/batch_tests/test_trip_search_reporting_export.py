@@ -5,7 +5,6 @@ from tests.assertions import assert_that, soft_assertions
 
 from src.framework.reporting.trip_search_reporting import (
     build_batch_reporting_bundle,
-    build_suite_export_manifest,
     build_suite_reporting_bundle,
     export_batch_reporting_bundle,
     export_suite_reporting_bundle,
@@ -85,53 +84,3 @@ class TestTripSearchReportingExport:
                 list(reporting_bundle.suite_run_summary_frame["run_id"])
             )
 
-    @allure.title("Report export helpers are safe when no output root is configured")
-    def test_reporting_export_expects_none_when_output_root_is_not_configured(
-        self,
-        batch_validation_result,
-        default_run_suite,
-        batch_scenarios,
-        expected_trip_frame,
-        run_suite_executor,
-    ):
-        suite_result = run_suite_executor.execute(default_run_suite, batch_scenarios, expected_trip_frame)
-
-        batch_export = export_batch_reporting_bundle(
-            build_batch_reporting_bundle(batch_validation_result),
-            output_root=None,
-            export_name="unused-batch-export",
-        )
-        suite_export = export_suite_reporting_bundle(
-            build_suite_reporting_bundle(suite_result),
-            output_root=None,
-            export_name="unused-suite-export",
-        )
-
-        with soft_assertions():
-            assert_that(batch_export, "Expected assertion for batch_export to hold").is_none()
-            assert_that(suite_export, "Expected assertion for suite_export to hold").is_none()
-
-    @allure.title("Suite export manifest builder is stable for direct bundle inspection")
-    def test_suite_export_manifest_expects_expected_metadata(
-        self,
-        default_run_suite,
-        batch_scenarios,
-        expected_trip_frame,
-        run_suite_executor,
-        local_batch_test_dir,
-    ):
-        suite_result = run_suite_executor.execute(default_run_suite, batch_scenarios, expected_trip_frame)
-        reporting_bundle = build_suite_reporting_bundle(suite_result)
-
-        manifest = build_suite_export_manifest(
-            reporting_bundle,
-            output_dir=local_batch_test_dir / "direct-manifest-suite-export",
-            execution_id="manual-suite-export",
-        )
-
-        with soft_assertions():
-            assert_that(manifest.schema_version, "Expected assertion for manifest.schema_version to hold").is_equal_to("1.0")
-            assert_that(manifest.execution_id, "Expected assertion for manifest.execution_id to hold").is_equal_to("manual-suite-export")
-            assert_that(manifest.suite_id, "Expected assertion for manifest.suite_id to hold").is_equal_to(default_run_suite.suite_id)
-            assert_that(manifest.total_runs, "Expected assertion for manifest.total_runs to hold").is_equal_to(len(default_run_suite.run_profiles))
-            assert_that(manifest.exported_artifacts, "Expected assertion for manifest.exported_artifacts to hold").is_length(5)

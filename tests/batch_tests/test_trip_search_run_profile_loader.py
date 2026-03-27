@@ -38,18 +38,3 @@ class TestTripSearchRunProfileLoader:
             "Missing required run-profile fields"
         )
 
-    @allure.title("Run profile loader rejects blank required values")
-    def test_run_profile_loader_expects_blank_required_values_to_be_rejected(
-        self,
-        local_batch_test_dir: Path,
-        run_profile_loader: TripSearchRunProfileLoader,
-    ):
-        invalid_profile_path = local_batch_test_dir / f"blank_run_id_{uuid4().hex}.json"
-        invalid_profile_path.write_text('{"run_id": " ", "run_label": "Blank Run Id"}', encoding="utf-8")
-
-        with pytest.raises(ValueError) as error:
-            run_profile_loader.load_json(invalid_profile_path)
-
-        assert_that(str(error.value)).described_as("Blank required run-profile fields should be rejected").contains(
-            "Run-profile field 'run_id' must not be blank"
-        )

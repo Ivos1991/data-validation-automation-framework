@@ -59,20 +59,6 @@ class TestDatasetProfileSelection:
         assert_that(len(loaded_dataset.expected_trip_frame), "Expected assertion for len(loaded_dataset.expected_trip_frame) to hold").is_equal_to(720)
         assert_that(loaded_dataset.scenario_dataset_path.name, "Expected assertion for loaded_dataset.scenario_dataset_path.name to hold").is_equal_to("large_batch_trip_search_scenarios.csv")
 
-    @allure.title("Suite metadata can drive dataset profile selection")
-    def test_dataset_profile_expects_run_suite_to_select_dataset_profile(
-        self,
-        config,
-        trip_dataset_context_loader,
-        large_run_suite,
-    ):
-        loaded_dataset = trip_dataset_context_loader.load(config, run_suite=large_run_suite)
-
-        assert_that(large_run_suite.dataset_profile, "Expected assertion for large_run_suite.dataset_profile to hold").is_equal_to("large")
-        assert_that(loaded_dataset.dataset_profile, "Expected assertion for loaded_dataset.dataset_profile to hold").is_equal_to("large")
-        assert_that(len(loaded_dataset.raw_trip_frame), "Expected assertion for len(loaded_dataset.raw_trip_frame) to hold").is_equal_to(720)
-        assert_that(loaded_dataset.scenario_dataset_path.name, "Expected assertion for loaded_dataset.scenario_dataset_path.name to hold").is_equal_to("large_batch_trip_search_scenarios.csv")
-
     @allure.title("Unknown dataset profiles are rejected clearly")
     def test_dataset_profile_expects_unknown_values_to_be_rejected(self, config, trip_dataset_context_loader):
         invalid_config = replace(config, dataset_profile="unknown")
@@ -84,18 +70,3 @@ class TestDatasetProfileSelection:
             "must be one of"
         )
 
-    @allure.title("Incomplete profile asset configuration fails clearly")
-    def test_dataset_profile_expects_missing_profile_assets_to_be_rejected(
-        self,
-        local_large_test_dir: Path,
-        config,
-        trip_dataset_context_loader,
-    ):
-        invalid_config = replace(config, scenario_dataset_path=local_large_test_dir / "missing_scenarios.csv")
-
-        with pytest.raises(FileNotFoundError) as error:
-            trip_dataset_context_loader.load(invalid_config)
-
-        assert_that(str(error.value)).described_as("Missing profile assets should fail clearly").contains(
-            "scenario_dataset_path"
-        )

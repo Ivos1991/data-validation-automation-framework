@@ -5,6 +5,9 @@ from pathlib import Path
 
 from src.domain.trip_search.dataset_profiles import normalize_dataset_profile
 from src.domain.trip_search.search_models import TripSearchRunProfile
+from src.framework.logging.logger import get_logger
+
+LOGGER = get_logger("trip_search.run_profile_loader")
 
 
 class TripSearchRunProfileLoader:
@@ -15,6 +18,7 @@ class TripSearchRunProfileLoader:
 
     def load_json(self, profile_path: Path) -> TripSearchRunProfile:
         """Read a run profile from disk and return the typed model."""
+        LOGGER.info("Loading run profile from %s", profile_path)
         with profile_path.open("r", encoding="utf-8") as profile_file:
             raw_profile = json.load(profile_file)
         return self._build_profile(raw_profile)
