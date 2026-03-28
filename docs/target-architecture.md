@@ -30,7 +30,6 @@ data-validation-automation-framework/
 |       `-- data_quality/
 |-- tests/
 |   |-- services_tests/
-|   |-- reconciliation_tests/
 |   |-- integration_tests/
 |   `-- data_quality_tests/
 |-- conftest.py

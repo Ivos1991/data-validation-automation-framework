@@ -35,6 +35,18 @@ class SQLiteClient:
                 currency TEXT NOT NULL,
                 duration_minutes INTEGER NOT NULL
             );
+
+            CREATE TABLE IF NOT EXISTS execution_jobs (
+                job_id TEXT PRIMARY KEY,
+                execution_mode TEXT NOT NULL,
+                status TEXT NOT NULL,
+                run_id TEXT NULL,
+                created_at TEXT NOT NULL,
+                updated_at TEXT NOT NULL,
+                completed_at TEXT NULL,
+                result_summary TEXT NULL,
+                error_message TEXT NULL
+            );
             """
         )
 

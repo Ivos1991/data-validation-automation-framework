@@ -39,13 +39,13 @@ Tests call service functions. Service functions call the request builder and API
 
 ### 6. Retry-As-Utility
 
-Preserve the idea behind `retry_utils.py`:
+Preserve the retry/polling pattern:
 
 - polling behavior should be centralized
 - retries should be explicit in fixture or helper usage
 - eventual-consistency waiting should not be hand-written repeatedly in tests
 
-For this repo, retries are mainly relevant for environment-backed API scenarios or delayed persistence checks, not for deterministic local SQLite assertions.
+For this repo, retries are only justified for environment-backed scenarios or delayed persistence checks, not for deterministic local SQLite assertions.
 
 ### 7. Assertion Style
 
