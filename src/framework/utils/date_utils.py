@@ -15,6 +15,18 @@ def to_iso_date(raw_value: str | date) -> str:
     return parse_iso_date(raw_value).isoformat()
 
 
+def parse_iso_datetime(raw_value: str | datetime) -> datetime:
+    """Parse an ISO datetime string into a datetime object."""
+    if isinstance(raw_value, datetime):
+        return raw_value
+    return datetime.fromisoformat(raw_value.strip())
+
+
+def to_iso_datetime(raw_value: str | datetime) -> str:
+    """Normalize a datetime-like value into ISO datetime text."""
+    return parse_iso_datetime(raw_value).isoformat()
+
+
 def parse_gtfs_service_date(raw_value: str | int) -> date:
     """Parse a GTFS service date in YYYYMMDD format."""
     return datetime.strptime(str(raw_value).strip(), "%Y%m%d").date()

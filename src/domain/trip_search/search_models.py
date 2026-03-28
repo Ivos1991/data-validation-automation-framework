@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass
-from datetime import date
+from datetime import date, datetime
 from pathlib import Path
 
 
@@ -143,3 +143,18 @@ class TripSearchRunSuite:
     description: str | None = None
     dataset_profile: str | None = None
     policy: TripSearchRunSuitePolicy = TripSearchRunSuitePolicy()
+
+
+@dataclass(frozen=True)
+class TripSearchExecutionJob:
+    """SQLite-backed async execution job for batch validation runs."""
+
+    job_id: str
+    execution_mode: str
+    status: str
+    run_id: str | None
+    created_at: datetime
+    updated_at: datetime
+    completed_at: datetime | None = None
+    result_summary: dict[str, object] | None = None
+    error_message: str | None = None
