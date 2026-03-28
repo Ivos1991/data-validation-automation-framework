@@ -1,6 +1,6 @@
 # Data Validation Automation Framework
 
-Data-driven QA automation framework for validating trip-search results against normalized source datasets. The project demonstrates a senior-level validation platform that starts with deterministic CSV data, scales to larger synthetic packs, and extends into a narrow GTFS-derived input path without changing the canonical validation architecture.
+Data-driven QA automation framework for validating trip-search results against normalized source datasets. The project demonstrates a validation platform that starts with deterministic CSV data, scales to larger synthetic packs, and extends into a narrow GTFS-derived input path without changing the canonical validation architecture.
 
 ## Overview
 
