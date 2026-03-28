@@ -9,6 +9,9 @@ from src.domain.trip_search.search_models import (
     TripSearchRunSuite,
     TripSearchRunSuitePolicy,
 )
+from src.framework.logging.logger import get_logger
+
+LOGGER = get_logger("trip_search.run_suite_loader")
 
 
 class TripSearchRunSuiteLoader:
@@ -18,6 +21,7 @@ class TripSearchRunSuiteLoader:
 
     def load_json(self, suite_path: Path) -> TripSearchRunSuite:
         """Read a run suite from disk and return the typed model."""
+        LOGGER.info("Loading run suite from %s", suite_path)
         with suite_path.open("r", encoding="utf-8") as suite_file:
             raw_suite = json.load(suite_file)
         return self._build_suite(raw_suite, suite_path.parent)

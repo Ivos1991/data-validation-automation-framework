@@ -20,6 +20,7 @@ from src.framework.connectors.files.trip_dataset_context_loader import (
     LoadedTripDatasetContext,
     TripDatasetContextLoader,
 )
+from src.framework.logging.logger import get_logger
 from src.framework.reporting.trip_search_reporting import (
     build_batch_reporting_bundle,
     build_suite_reporting_bundle,
@@ -28,6 +29,8 @@ from src.framework.reporting.trip_search_reporting import (
 )
 from src.validators.reconciliation.trip_batch_validator import BatchValidationResult, TripSearchBatchValidator
 from src.validators.reconciliation.trip_suite_executor import TripSearchRunSuiteExecutor, TripSearchRunSuiteResult
+
+LOGGER = get_logger("trip_search.entrypoint")
 
 
 EXECUTION_MODES = ("batch", "run-profile", "suite")
@@ -93,6 +96,11 @@ class TripSearchEntrypoint:
 
     def execute(self, execution_args: TripSearchExecutionArgs) -> TripSearchExecutionResult:
         """Dispatch the requested execution mode and return a structured summary."""
+        LOGGER.info(
+            "Executing trip-search entrypoint mode=%s dataset_profile=%s",
+            execution_args.execution_mode,
+            execution_args.dataset_profile,
+        )
         if execution_args.execution_mode == "batch":
             return self._execute_batch(execution_args)
         if execution_args.execution_mode == "run-profile":
@@ -231,6 +239,11 @@ class SeededSearchServiceApiContext:
     def __enter__(self) -> SearchServiceAPI:
         """Seed the resolved dataset into SQLite and return the service API adapter."""
         self.resolved_db_path = self._resolve_db_path()
+        LOGGER.info(
+            "Building seeded service API for dataset_profile=%s db_path=%s",
+            self.dataset_context.dataset_profile,
+            self.resolved_db_path,
+        )
         self.sqlite_client = SQLiteClient(self.resolved_db_path)
         self.sqlite_client.initialize_schema()
         TripQueries(self.sqlite_client).seed_trips(self.dataset_context.normalized_trips)
@@ -242,6 +255,7 @@ class SeededSearchServiceApiContext:
             db_path = Path(self.sqlite_client.db_path)
             self.sqlite_client.close()
             if db_path.exists():
+                LOGGER.info("Removing temporary SQLite database at %s", db_path)
                 db_path.unlink()
 
     def _resolve_db_path(self) -> str | Path:

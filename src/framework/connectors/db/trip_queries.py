@@ -2,6 +2,9 @@ from __future__ import annotations
 
 from src.domain.trip_search.search_models import Trip
 from src.framework.connectors.db.sqlite_client import SQLiteClient
+from src.framework.logging.logger import get_logger
+
+LOGGER = get_logger("trip_search.trip_queries")
 
 
 class TripQueries:
@@ -12,6 +15,7 @@ class TripQueries:
 
     def seed_trips(self, trips: list[Trip]) -> None:
         """Insert canonical trips into SQLite for deterministic validation runs."""
+        LOGGER.info("Seeding %s canonical trips into SQLite", len(trips))
         parameters = [
             (
                 trip.trip_id,
@@ -54,6 +58,14 @@ class TripQueries:
         stops_count: int | None = None,
     ) -> list[dict]:
         """Search trips by route/date and optional filters through SQLite."""
+        LOGGER.info(
+            "Searching trips by route/date origin=%s destination=%s departure_date=%s carrier=%s stops_count=%s",
+            origin,
+            destination,
+            departure_date,
+            carrier,
+            stops_count,
+        )
         query = """
             SELECT
                 trip_id,
