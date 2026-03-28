@@ -94,11 +94,3 @@ Validators must not accept:
 ## Change-Isolation Goal
 
 If the DB field format changes, only the mapper and focused normalization helpers should need updates. Test intent and validator logic should remain stable.
-
-## Planned Utility Adaptation
-
-The old utility set is a reference for utility categories, not a copy target:
-
-- `mysql_handler.py` becomes a SQLite connector/query layer plus repository methods
-- `date_and_time_utils.py` becomes narrower trip-domain date parsing and formatting helpers
-- `retry_utils.py` can be adapted as a generic polling utility for eventual-consistency scenarios
